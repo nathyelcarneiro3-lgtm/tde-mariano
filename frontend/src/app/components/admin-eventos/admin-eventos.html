@@ -1,0 +1,35 @@
+<!-- admin-eventos.component.html -->
+<div class="admin-container">
+  <h2>LISTA DE EVENTOS</h2>
+  <button class="btn-novo">+ NOVO EVENTO</button>
+
+  <input type="text" placeholder="BUSCAR EVENTO POR NOME OU LOCAL" class="search-bar">
+
+  <table>
+    <thead>
+      <tr>
+        <th>EVENTO</th>
+        <th>DATA</th>
+        <th>LOCAL</th>
+        <th>PARTICIPANTES</th>
+        <th>STATUS</th>
+        <th>AÇÕES</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Exemplo de item: repetir com *ngFor -->
+      <tr>
+        <td>Festival de Música Nordestina</td>
+        <td>10/05/2026 18:00</td>
+        <td>Praça da Sé</td>
+        <td>300</td>
+        <td><span class="status-ativo">Ativo</span></td>
+        <td>
+          <button>EDITAR</button>
+          <button>REMOVER</button>
+          <button>+INFO</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

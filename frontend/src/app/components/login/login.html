@@ -1,0 +1,16 @@
+<div class="login-container">
+  <div class="login-box">
+    <h1>Login</h1>
+    <form (submit)="fazerLogin()">
+      <label for="cpf">CPF</label>
+      <input type="text" id="cpf" [(ngModel)]="loginData.cpf" name="cpf" required>
+
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" [(ngModel)]="loginData.senha" name="senha" required>
+
+      <a href="#">Esqueceu sua senha?</a>
+      
+      <button type="submit">FAZER LOGIN</button>
+    </form>
+  </div>
+</div>
