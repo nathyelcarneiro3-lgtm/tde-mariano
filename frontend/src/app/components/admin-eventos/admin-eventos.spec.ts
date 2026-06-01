@@ -1,17 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { AdminEventosComponent } from './admin-eventos'; // Import correto
 
-import { AdminEventos } from './admin-eventos';
-
-describe('AdminEventos', () => {
-  let component: AdminEventos;
-  let fixture: ComponentFixture<AdminEventos>;
+describe('AdminEventosComponent', () => { // Nome da classe corrigido
+  let component: AdminEventosComponent; // Tipo corrigido
+  let fixture: ComponentFixture<AdminEventosComponent>; // Tipo corrigido
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AdminEventos],
+      imports: [AdminEventosComponent], // Import corrigido
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AdminEventos);
+    fixture = TestBed.createComponent(AdminEventosComponent); // Nome corrigido
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
