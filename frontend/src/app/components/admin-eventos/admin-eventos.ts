@@ -27,7 +27,7 @@ carregarEventos(): void {
         console.error('Erro ao buscar eventos:', err);
       }
     });
-  }
+}
 
   removerEvento(id: number): void {
     if (confirm('Tem certeza que deseja remover este evento?')) {
