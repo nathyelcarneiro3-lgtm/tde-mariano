@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, Inject, PLATFORM_ID } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { CommonModule } from '@angular/common'; // Necessário para o *ngIf funcionar
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 
 @Component({
   selector: 'app-root',
@@ -11,10 +11,14 @@ import { CommonModule } from '@angular/common'; // Necessário para o *ngIf func
 export class App {
   protected readonly title = signal('frontend');
 
-  // Função que o HTML vai usar para saber se o botão Admin deve aparecer
+  // Injetamos a ferramenta que descobre onde o código está a rodar
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+
   usuarioEstaLogado(): boolean {
-    // Se existir um token no localStorage, retorna verdadeiro (true)
-    // Caso contrário, retorna falso (false)
-    return !!localStorage.getItem('token'); 
+    // Só tenta procurar o token se estiver efetivamente no ecrã do utilizador (browser)
+    if (isPlatformBrowser(this.platformId)) {
+      return !!localStorage.getItem('token');
+    }
+    return false;
   }
 }
