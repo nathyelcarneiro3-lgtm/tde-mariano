@@ -1,9 +1,22 @@
 import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { EventoService } from '../../services/evento';
 
 @Component({
   selector: 'app-cadastro-evento',
-  imports: [],
-  templateUrl: './cadastro-evento.html',
-  styleUrl: './cadastro-evento.css',
+  standalone: true,
+  imports: [FormsModule],
+  templateUrl: './cadastro-evento.html'
 })
-export class CadastroEvento {}
+export class CadastroEventoComponent {
+  novoEvento = { nome: '', data: '', local: '' };
+
+  constructor(private eventoService: EventoService) {}
+
+  cadastrar() {
+    this.eventoService.salvar(this.novoEvento).subscribe({
+      next: () => alert('Evento cadastrado com sucesso!'),
+      error: (err) => console.error('Erro ao salvar', err)
+    });
+  }
+}
