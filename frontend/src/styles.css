@@ -1,1 +1,101 @@
 /* You can add global styles to this file, and also import other style files */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* 1. VARIÁVEIS DE COR DO SISTEMA (Altere aqui para mudar em todo o site!) */
+:root {
+  --cor-fundo-principal: #0f172a;    /* Azul muito escuro (Quase marinho) */
+  --cor-fundo-secundario: #1e293b;   /* Azul escuro (Para os cartões) */
+  --cor-texto-principal: #f8fafc;    /* Branco/Gelo para leitura perfeita */
+  --cor-texto-secundario: #94a3b8;   /* Cinzento azulado para textos menores */
+  --cor-destaque-dourado: #d4af37;   /* Dourado clássico e elegante */
+  --cor-destaque-hover: #b8962e;     /* Dourado mais escuro para botões ao passar o rato */
+}
+
+/* 2. APLICAR O FUNDO GLOBAL NO SITE INTEIRO */
+body {
+  background-color: var(--cor-fundo-principal);
+  color: var(--cor-texto-principal);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+}
+
+/* 3. PERSONALIZAÇÃO DA BARRA DE NAVEGAÇÃO (Menu superior) */
+.navbar {
+  background-color: var(--cor-fundo-secundario) !important;
+  border-bottom: 2px solid var(--cor-destaque-dourado);
+}
+
+.navbar-brand, .nav-link {
+  color: var(--cor-texto-principal) !important;
+}
+
+.nav-link:hover {
+  color: var(--cor-destaque-dourado) !important;
+}
+
+/* 4. PERSONALIZAÇÃO DOS CARTÕES GLOBAIS (Onde ficam as tabelas e os formulários) */
+.card {
+  background-color: var(--cor-fundo-secundario) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+.card-header, .card-body h2, .card-body h3, .card-body h4 {
+  color: var(--cor-texto-principal) !important;
+  background-color: transparent !important;
+}
+
+/* 5. PERSONALIZAÇÃO DAS TABELAS */
+.table {
+  color: var(--cor-texto-principal);
+}
+.table thead th {
+  background-color: #0b1120 !important; /* Um azul ainda mais escuro para o cabeçalho da tabela */
+  color: var(--cor-destaque-dourado) !important;
+  border-bottom-color: var(--cor-destaque-dourado) !important;
+}
+.table tbody tr td {
+  background-color: var(--cor-fundo-secundario) !important;
+  color: var(--cor-texto-principal) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.1) !important;
+}
+.table tbody tr:hover td {
+  background-color: #2a374c !important; /* Azul ligeiramente mais claro ao passar o rato */
+}
+
+/* 6. TEXTOS GERAIS E LABELS (Etiquetas dos formulários) */
+label, .text-muted, p, .text-secondary {
+  color: var(--cor-texto-secundario) !important;
+}
+
+/* 7. BOTÕES GLOBAIS COM TEMA DOURADO */
+.btn-primary, .btn-success, .btn-dark, .custom-btn {
+  background-color: var(--cor-destaque-dourado) !important;
+  color: #000000 !important; /* Texto preto para dar contraste com o botão dourado */
+  border: none !important;
+  font-weight: 700;
+  transition: all 0.3s;
+}
+
+.btn-primary:hover, .btn-success:hover, .btn-dark:hover, .custom-btn:hover {
+  background-color: var(--cor-destaque-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+}
+
+/* 8. INPUTS GLOBAIS (Campos de texto escuros) */
+input.form-control, .custom-input {
+  background-color: #0b1120 !important;
+  border: 1px solid #334155 !important;
+  color: var(--cor-texto-principal) !important;
+}
+
+input.form-control:focus, .custom-input:focus {
+  border-color: var(--cor-destaque-dourado) !important;
+  box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25) !important;
+}
+
+/* O texto temporário dos inputs (placeholder) */
+::placeholder {
+  color: #475569 !important;
+}

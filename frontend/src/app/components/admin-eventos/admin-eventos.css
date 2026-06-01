@@ -1,0 +1,52 @@
+/* Personalização dos cabeçalhos da tabela */
+.custom-table th {
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  border-bottom: 2px solid #e2e8f0;
+  font-size: 0.85rem;
+}
+
+/* Espaçamento e linhas das células */
+.custom-table td {
+  border-bottom: 1px solid #f1f5f9;
+  background-color: #ffffff;
+}
+
+/* Efeito de hover (ao passar o rato por cima da linha) */
+.custom-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.custom-table tbody tr:hover td {
+  background-color: #f8fafc;
+}
+
+/* Estilização do botão de Excluir */
+.btn-outline-danger {
+  border: 1px solid #fca5a5;
+  color: #ef4444;
+  background-color: transparent;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-danger:hover {
+  background-color: #ef4444;
+  color: #ffffff;
+  border-color: #ef4444;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Bordas mais arredondadas para o cartão */
+.rounded-4 {
+  border-radius: 1rem !important;
+}
+
+/* Esconde a barra de scroll feia na tabela em telemóveis */
+.table-responsive::-webkit-scrollbar {
+  height: 8px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}

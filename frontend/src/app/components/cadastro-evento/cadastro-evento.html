@@ -1,24 +1,33 @@
-<div style="max-width: 500px; margin: auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
-  <h2>Cadastrar Novo Evento</h2>
-  
-  <form (ngSubmit)="cadastrar()">
-    <div style="margin-bottom: 15px;">
-      <label style="display: block; margin-bottom: 5px;">Nome do Evento:</label>
-      <input type="text" [(ngModel)]="novoEvento.nome" name="nome" required style="width: 100%; padding: 8px;">
-    </div>
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-primary text-white">
+        <h4 class="mb-0">Cadastrar Novo Evento</h4>
+      </div>
+      <div class="card-body">
+        <form (ngSubmit)="cadastrar()">
+          
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nome do Evento</label>
+            <input type="text" class="form-control" [(ngModel)]="novoEvento.nome" name="nome" placeholder="Ex: Minicurso de Angular" required>
+          </div>
 
-    <div style="margin-bottom: 15px;">
-      <label style="display: block; margin-bottom: 5px;">Data e Hora:</label>
-      <input type="datetime-local" [(ngModel)]="novoEvento.data" name="data" required style="width: 100%; padding: 8px;">
-    </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Data e Hora</label>
+            <input type="datetime-local" class="form-control" [(ngModel)]="novoEvento.data" name="data" required>
+          </div>
 
-    <div style="margin-bottom: 15px;">
-      <label style="display: block; margin-bottom: 5px;">Localização:</label>
-      <input type="text" [(ngModel)]="novoEvento.local" name="local" required style="width: 100%; padding: 8px;">
-    </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold">Localização</label>
+            <input type="text" class="form-control" [(ngModel)]="novoEvento.local" name="local" placeholder="Ex: Auditório Principal" required>
+          </div>
 
-    <button type="submit" style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
-      Salvar Evento
-    </button>
-  </form>
+          <div class="d-grid mt-4">
+            <button type="submit" class="btn btn-success btn-lg">Salvar Evento</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
 </div>

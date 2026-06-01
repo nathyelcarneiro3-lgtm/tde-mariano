@@ -1,10 +1,23 @@
-<nav style="padding: 15px; background-color: #343a40; color: white; margin-bottom: 20px; display: flex; gap: 20px;">
-  <h2 style="margin: 0; padding-right: 20px;">Gestão de Eventos</h2>
-  <a routerLink="/login" style="color: white; text-decoration: none; align-content: center;">Login</a>
-  <a routerLink="/admin" style="color: white; text-decoration: none; align-content: center;">Meus Eventos</a>
-  <a routerLink="/cadastro-evento" style="color: white; text-decoration: none; align-content: center;">Cadastrar Evento</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#">🎫 Gestão de Eventos</a>
+    
+    <div class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active">Meus Eventos</a>
+        </li>
+        <li class="nav-item">
+          <a class="btn btn-success ms-3" routerLink="/cadastro-evento">Cadastrar Novo</a>
+        </li>
+      </ul>
+    </div>
+  </div>
 </nav>
 
-<div style="padding: 20px;">
+<div class="container">
   <router-outlet></router-outlet>
 </div>

@@ -1,0 +1,33 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #121214; /* Fundo escuro */
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+.login-box {
+  background-color: #202024;
+  padding: 40px;
+  border-radius: 8px;
+  width: 300px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  border: none;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #fca311; /* Cor de destaque (amarelo/dourado) */
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}

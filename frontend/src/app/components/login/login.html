@@ -1,16 +1,134 @@
-<div class="login-container">
+<style>
+  .login-wrapper {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .login-box {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    max-width: 900px;
+    width: 100%;
+    display: flex;
+  }
+
+  /* Lado Esquerdo - Cor de Destaque */
+  .login-side-visual {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); /* Tons escuros elegantes */
+    color: white;
+    padding: 50px 40px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Lado Direito - O Formulário */
+  .login-side-form {
+    flex: 1;
+    padding: 60px 50px;
+    background: #ffffff;
+  }
+
+  /* Campos de texto modernos */
+  .custom-input {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+  }
+
+  .custom-input:focus {
+    background-color: #ffffff;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    outline: none;
+  }
+
+  /* Botão Principal */
+  .custom-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s, background-color 0.2s;
+  }
+
+  .custom-btn:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-2px);
+    color: white;
+  }
+</style>
+
+<div class="container login-wrapper mt-4">
   <div class="login-box">
-    <h1>Login</h1>
-    <form (submit)="fazerLogin()">
-      <label for="cpf">CPF</label>
-      <input type="text" id="cpf" [(ngModel)]="loginData.cpf" name="cpf" required>
+    
+    <div class="login-side-visual d-none d-md-flex">
+      <div style="font-size: 3rem; margin-bottom: 20px;">🎫</div>
+      <h2 class="fw-bold mb-3">Gestão de Eventos</h2>
+      <p class="text-light opacity-75" style="font-size: 0.95rem;">
+        Acesse o sistema administrativo para gerenciar palestras, minicursos e inscrições de forma centralizada.
+      </p>
+    </div>
 
-      <label for="senha">Senha</label>
-      <input type="password" id="senha" [(ngModel)]="loginData.senha" name="senha" required>
+    <div class="login-side-form">
+      <div class="mb-4 text-center">
+        <h3 class="fw-bold text-dark mb-1">Bem-vindo(a)</h3>
+        <p class="text-muted small">Insira suas credenciais para continuar</p>
+      </div>
 
-      <a href="#">Esqueceu sua senha?</a>
-      
-      <button type="submit">FAZER LOGIN</button>
-    </form>
+      <form (ngSubmit)="fazerLogin()">
+        
+        <div class="mb-3">
+          <label for="cpf" class="form-label small fw-bold text-secondary">CPF do Usuário</label>
+          <input 
+            type="text" 
+            id="cpf" 
+            class="form-control custom-input" 
+            [(ngModel)]="loginData.cpf" 
+            name="cpf" 
+            placeholder="000.000.000-00" 
+            required
+          >
+        </div>
+
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label for="senha" class="form-label small fw-bold text-secondary mb-0">Senha de Acesso</label>
+            <a href="#" class="text-decoration-none small text-primary fw-bold">Recuperar senha</a>
+          </div>
+          <input 
+            type="password" 
+            id="senha" 
+            class="form-control custom-input" 
+            [(ngModel)]="loginData.senha" 
+            name="senha" 
+            placeholder="••••••••" 
+            required
+          >
+        </div>
+
+        <div class="d-grid mt-5">
+          <button type="submit" class="btn custom-btn shadow-sm">
+            Entrar no Sistema
+          </button>
+        </div>
+
+      </form>
+    </div>
+
   </div>
 </div>
