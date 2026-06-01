@@ -1,17 +1,17 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 shadow">
+<nav class="navbar navbar-expand-lg navbar-dark mb-4 shadow">
   <div class="container">
-    <a class="navbar-brand fw-bold" href="#">🎫 Gestão de Eventos</a>
+    <a class="navbar-brand fw-bold" routerLink="/home">🎫 Portal de Eventos</a>
     
     <div class="collapse navbar-collapse">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="/login" routerLinkActive="active">Login</a>
+      <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item me-2">
+          <a class="nav-link" routerLink="/home" routerLinkActive="active">Início</a>
+        </li>
+        <li class="nav-item me-2">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active">Área Admin</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" routerLink="/admin" routerLinkActive="active">Meus Eventos</a>
-        </li>
-        <li class="nav-item">
-          <a class="btn btn-success ms-3" routerLink="/cadastro-evento">Cadastrar Novo</a>
+          <a class="btn custom-btn ms-3 px-4 py-2" routerLink="/login">Entrar</a>
         </li>
       </ul>
     </div>

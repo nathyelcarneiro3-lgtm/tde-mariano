@@ -1,0 +1,47 @@
+<div class="py-5 mb-5 text-center rounded-4 shadow-lg" style="background: linear-gradient(135deg, #1e293b 0%, #0b1120 100%); border: 1px solid rgba(212, 175, 55, 0.15); margin-top: 20px;">
+  <div class="container py-4">
+    <div style="font-size: 3.5rem; margin-bottom: 10px;">✨</div>
+    <h1 class="display-5 fw-bold mb-3" style="color: var(--cor-destaque-dourado);">Descubra Próximos Eventos</h1>
+    <p class="lead mx-auto" style="max-width: 600px; color: var(--cor-texto-secundario);">
+      Participe nas melhores palestras e minicursos. Garanta já a sua vaga e amplie os seus conhecimentos!
+    </p>
+  </div>
+</div>
+
+<div class="row g-4 mb-5">
+  
+  <div class="col-md-6 col-lg-4" *ngFor="let evento of eventos">
+    <div class="card h-100 border-0" style="border-top: 3px solid var(--cor-destaque-dourado) !important;">
+      <div class="card-body p-4 d-flex flex-column">
+        
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <span class="badge px-3 py-2 rounded-pill" style="background-color: rgba(212, 175, 55, 0.15); color: var(--cor-destaque-dourado);">Aberto</span>
+          <span style="font-size: 1.5rem;">🎫</span>
+        </div>
+        
+        <h4 class="fw-bold mb-3 text-white">{{ evento.nome }}</h4>
+        
+        <p class="small mb-2" style="color: var(--cor-texto-secundario);">
+          <strong class="text-white">📍 Local:</strong> {{ evento.local }}
+        </p>
+        <p class="small mb-4" style="color: var(--cor-texto-secundario);">
+          <strong class="text-white">🕒 Data:</strong> {{ evento.data | date:'dd/MM/yyyy às HH:mm' }}
+        </p>
+        
+        <div class="mt-auto pt-3">
+          <button class="btn btn-outline-warning w-100 fw-bold" style="border-color: var(--cor-destaque-dourado); color: var(--cor-destaque-dourado); border-width: 2px;">
+            Inscrever-me
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 text-center py-5" *ngIf="!eventos || eventos.length === 0">
+    <div style="font-size: 4rem; opacity: 0.2; margin-bottom: 20px;">🏜️</div>
+    <h3 style="color: var(--cor-texto-secundario);">Ainda não existem eventos publicados.</h3>
+    <p style="color: #475569;">Fique atento(a), em breve teremos novidades!</p>
+  </div>
+
+</div>
