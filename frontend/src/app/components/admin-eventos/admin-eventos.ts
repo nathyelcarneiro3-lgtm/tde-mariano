@@ -6,8 +6,8 @@ import { EventoService } from '../../services/evento';
   selector: 'app-admin-eventos',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './admin-eventos.component.html',
-  styleUrls: ['./admin-eventos.component.css']
+  templateUrl: './admin-eventos.html', // APAGUE o ".component" desta linha!
+  styleUrls: ['./admin-eventos.css'] 
 })
 export class AdminEventosComponent implements OnInit {
   eventos: any = [];

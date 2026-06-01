@@ -6,22 +6,25 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class EventoService {
-  // Esta é a URL onde o seu Flask está rodando
   private apiUrl = 'http://localhost:5000/api/v1/evento';
 
   constructor(private http: HttpClient) {}
 
-  // Este é o método 'salvar' que você perguntou
-  salvar(evento: any): Observable<any> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', token || '');
-    return this.http.post(this.apiUrl, evento, { headers });
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token') || '';
+    return new HttpHeaders().set('Authorization', token);
   }
 
-  // Este é o método para listar eventos
+  salvar(evento: any): Observable<any> {
+    return this.http.post(this.apiUrl, evento, { headers: this.getHeaders() });
+  }
+
   obterTodos(): Observable<any> {
-    const token = localStorage.getItem('token');
-    const headers = new HttpHeaders().set('Authorization', token || '');
-    return this.http.get(this.apiUrl, { headers });
+    return this.http.get(this.apiUrl, { headers: this.getHeaders() });
+  }
+
+  // Olha a função remover aqui!
+  remover(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 }
