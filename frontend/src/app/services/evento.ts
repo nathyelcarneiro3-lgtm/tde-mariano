@@ -2,29 +2,25 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class EventoService {
-  private apiUrl = 'http://localhost:5000/api/v1/evento';
+  private apiUrl = 'http://127.0.0.1:5000/api/v1/evento';
 
   constructor(private http: HttpClient) {}
 
-  private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || '';
-    return new HttpHeaders().set('Authorization', token);
-  }
-
-  salvar(evento: any): Observable<any> {
-    return this.http.post(this.apiUrl, evento, { headers: this.getHeaders() });
-  }
-
   obterTodos(): Observable<any> {
-    return this.http.get(this.apiUrl, { headers: this.getHeaders() });
+    return this.http.get(this.apiUrl);
   }
 
-  // Olha a função remover aqui!
-  remover(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  // 👇 É ESTA A FUNÇÃO QUE O ANGULAR ESTÁ A PROCURAR 👇
+  cadastrar(evento: any): Observable<any> {
+    const token = localStorage.getItem('token') || '';
+    
+    const headers = new HttpHeaders({ 
+      'Content-Type': 'application/json',
+      'Authorization': token 
+    });
+
+    return this.http.post(this.apiUrl, evento, { headers });
   }
 }

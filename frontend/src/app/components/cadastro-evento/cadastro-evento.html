@@ -1,32 +1,73 @@
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <div class="card shadow-sm mt-4">
-      <div class="card-header bg-primary text-white">
-        <h4 class="mb-0">Cadastrar Novo Evento</h4>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-6">
+      
+      <div class="mb-4 text-center">
+        <h2 class="fw-bold text-dark mb-2">Criar Novo Evento</h2>
+        <p class="text-muted">Preencha as datas e o limite de inscrições do seu evento.</p>
       </div>
-      <div class="card-body">
-        <form (ngSubmit)="cadastrar()">
+
+      <div class="card shadow-sm border-0" style="border-radius: 16px;">
+        <div class="card-body p-4 p-md-5">
           
-          <div class="mb-3">
-            <label class="form-label fw-bold">Nome do Evento</label>
-            <input type="text" class="form-control" [(ngModel)]="novoEvento.nome" name="nome" placeholder="Ex: Minicurso de Angular" required>
-          </div>
+          <form (ngSubmit)="salvarEvento()">
+            
+            <div class="mb-4">
+              <label class="form-label fw-bold text-secondary small">Nome do Evento <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-lg bg-light border-0" 
+                     [(ngModel)]="eventoData.nome" name="nome" 
+                     placeholder="Nome oficial do evento" required>
+            </div>
 
-          <div class="mb-3">
-            <label class="form-label fw-bold">Data e Hora</label>
-            <input type="datetime-local" class="form-control" [(ngModel)]="novoEvento.data" name="data" required>
-          </div>
+            <div class="mb-4">
+              <label class="form-label fw-bold text-secondary small">Descrição</label>
+              <textarea rows="3" class="form-control bg-light border-0" 
+                        [(ngModel)]="eventoData.descricao" name="descricao" 
+                        placeholder="Detalhes e objetivos..."></textarea>
+            </div>
 
-          <div class="mb-3">
-            <label class="form-label fw-bold">Localização</label>
-            <input type="text" class="form-control" [(ngModel)]="novoEvento.local" name="local" placeholder="Ex: Auditório Principal" required>
-          </div>
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <label class="form-label fw-bold text-secondary small">Início (Data e Hora) <span class="text-danger">*</span></label>
+                <input type="datetime-local" class="form-control form-control-lg bg-light border-0" 
+                       [(ngModel)]="eventoData.dt_inicio" name="dt_inicio" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-secondary small">Fim (Data e Hora) <span class="text-danger">*</span></label>
+                <input type="datetime-local" class="form-control form-control-lg bg-light border-0" 
+                       [(ngModel)]="eventoData.dt_fim" name="dt_fim" required>
+              </div>
+            </div>
 
-          <div class="d-grid mt-4">
-            <button type="submit" class="btn btn-success btn-lg">Salvar Evento</button>
-          </div>
+            <div class="row mb-5">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <label class="form-label fw-bold text-secondary small">Fim das Inscrições <span class="text-danger">*</span></label>
+                <input type="datetime-local" class="form-control form-control-lg bg-light border-0" 
+                       [(ngModel)]="eventoData.dt_limite_inscricao" name="dt_limite_inscricao" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-secondary small">Número de Vagas</label>
+                <input type="number" class="form-control form-control-lg bg-light border-0" 
+                       [(ngModel)]="eventoData.numero_vagas" name="numero_vagas" min="1">
+              </div>
+            </div>
 
-        </form>
+            <hr class="mb-4">
+
+            <div class="d-flex justify-content-end gap-3">
+              <button type="button" routerLink="/admin" class="btn btn-light fw-bold px-4" [disabled]="carregando">
+                Cancelar
+              </button>
+              
+              <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4" [disabled]="carregando">
+                <span *ngIf="carregando" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                {{ carregando ? 'A Gravar...' : 'Salvar Evento' }}
+              </button>
+            </div>
+
+          </form>
+          
+        </div>
       </div>
     </div>
   </div>

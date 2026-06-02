@@ -1,9 +1,12 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-lista-inscritos',
-  imports: [],
-  templateUrl: './lista-inscritos.html',
-  styleUrl: './lista-inscritos.css',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './lista-inscritos.html'
 })
-export class ListaInscritos {}
+export class ListaInscritosComponent {
+  // Código futuro para listar os inscritos entrará aqui
+}
