@@ -20,4 +20,9 @@ export class UsuarioService {
   };
   return this.http.post(this.apiUrl, dados, { headers });
 }
+logar(credenciais: any): Observable<any> {
+    // O seu Python espera receber (cpf, senha). 
+    // Certifique-se que o backend tem a rota /api/v1/usuario/logar
+    return this.http.post('http://127.0.0.1:5000/api/v1/usuario/logar', credenciais);
+  }
 }

@@ -75,50 +75,25 @@
 
 <div class="container login-wrapper mt-4">
   <div class="login-box">
-    
-    <div class="login-side-visual d-none d-md-flex">
-      <div style="font-size: 3rem; margin-bottom: 20px;">🎫</div>
-      <h2 class="fw-bold mb-3">Gestão de Eventos</h2>
-      <p class="text-light opacity-75" style="font-size: 0.95rem;">
-        Acesse o sistema administrativo para gerenciar palestras, minicursos e inscrições de forma centralizada.
-      </p>
-    </div>
-
     <div class="login-side-form">
       <div class="mb-4 text-center">
-        <h3 class="fw-bold text-dark mb-1">Bem-vindo(a)</h3>
-        <p class="text-muted small">Insira suas credenciais para continuar</p>
+        <h3 class="fw-bold text-dark mb-1">Iniciar Sessão</h3>
+        <p class="text-muted small">Bem-vindo de volta!</p>
       </div>
 
       <form (ngSubmit)="fazerLogin()">
-        
         <div class="mb-3">
-  <label for="email" class="form-label small fw-bold text-secondary">E-mail</label>
-  <input 
-    type="email" 
-    id="email" 
-    class="form-control form-control-lg custom-input bg-light" 
-    [(ngModel)]="loginData.email" 
-    name="email" 
-    placeholder="nome@exemplo.com" 
-    required
-  >
-</div>
+          <label for="cpf" class="form-label small fw-bold text-secondary">CPF</label>
+          <input type="text" id="cpf" class="form-control custom-input" 
+                 [(ngModel)]="loginData.cpf" name="cpf" 
+                 placeholder="000.000.000-00" required>
+        </div>
 
         <div class="mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <label for="senha" class="form-label small fw-bold text-secondary mb-0">Senha de Acesso</label>
-            <a href="#" class="text-decoration-none small text-primary fw-bold">Recuperar senha</a>
-          </div>
-          <input 
-            type="password" 
-            id="senha" 
-            class="form-control custom-input" 
-            [(ngModel)]="loginData.senha" 
-            name="senha" 
-            placeholder="••••••••" 
-            required
-          >
+          <label for="senha" class="form-label small fw-bold text-secondary">Senha</label>
+          <input type="password" id="senha" class="form-control custom-input" 
+                 [(ngModel)]="loginData.senha" name="senha" 
+                 placeholder="Digite sua senha" required>
         </div>
 
         <div class="d-grid mt-5 gap-3">
@@ -130,10 +105,7 @@
             <a routerLink="/registo" class="text-primary fw-bold text-decoration-none small">Criar conta</a>
           </div>
         </div>
-        
-
       </form>
     </div>
-
   </div>
 </div>

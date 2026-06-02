@@ -1,36 +1,37 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router'; // 1. Adicionado aqui!
+import { Router, RouterLink } from '@angular/router';
+import { UsuarioService } from '../../services/usuario'; // Certifique-se de importar o serviço
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink], // 2. Adicionado aqui!
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './login.html'
 })
 export class LoginComponent {
   
   loginData = {
-    email: '', // Trocamos cpf por email
+    cpf: '',
     senha: ''
   };
 
-  
-  fazerLogin() {
-    console.log('Tentativa de login com:', this.loginData);
-    
-    // Agora, se o seu backend esperar o campo 'cpf' mas você quer passar o email,
-    // você tem duas opções:
-    // 1. Enviar como 'cpf' mesmo (se o backend usar o campo CPF para guardar o email)
-    // 2. Enviar como 'email' (se o backend estiver configurado para isso)
-    
-    // Mantenha assim se o backend espera 'cpf':
-    const payload = {
-       cpf: this.loginData.email, // O backend recebe como 'cpf'
-       senha: this.loginData.senha
-    };
+  constructor(private usuarioService: UsuarioService, private router: Router) {}
 
-    // ... código de chamada ao serviço ...
+  fazerLogin() {
+    // Aqui enviamos os dados exatamente como o UsuarioBC.logar(cpf, senha) espera
+    this.usuarioService.logar(this.loginData).subscribe({
+      next: (resposta) => {
+        // Guarda o token no navegador
+        localStorage.setItem('token', resposta.token_jwt);
+        alert('Login efetuado com sucesso!');
+        this.router.navigate(['/home']);
+      },
+      error: (erro) => {
+        console.error('Erro de Login:', erro);
+        alert('CPF ou senha inválidos.');
+      }
+    });
   }
 }
