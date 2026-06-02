@@ -12,9 +12,20 @@
           <a class="nav-link text-warning fw-bold" routerLink="/admin" routerLinkActive="active">⚙️ Área Admin</a>
         </li>
         
-        <li class="nav-item">
-          <a class="btn custom-btn ms-3 px-4 py-2" routerLink="/login">Entrar</a>
-        </li>
+        <div *ngIf="!usuarioEstaLogado()">
+  <a routerLink="/login" class="btn btn-outline-primary">Fazer Login</a>
+</div>
+
+<div *ngIf="usuarioEstaLogado()" class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+    {{ getNomeUsuario() }}
+  </button>
+  <ul class="dropdown-menu">
+    <li><a class="dropdown-item" routerLink="/editar-perfil">Editar Perfil</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><button class="dropdown-item text-danger" (click)="deslogar()">Deslogar</button></li>
+  </ul>
+</div>
       </ul>
     </div>
   </div>

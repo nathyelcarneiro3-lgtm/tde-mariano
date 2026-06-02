@@ -13,17 +13,16 @@ import { UsuarioService } from '../../services/usuario'; // Certifique-se de imp
 export class LoginComponent {
   
   loginData = {
-    cpf: '',
+    cpf: '', // Trocamos de email para cpf
     senha: ''
   };
 
   constructor(private usuarioService: UsuarioService, private router: Router) {}
 
   fazerLogin() {
-    // Aqui enviamos os dados exatamente como o UsuarioBC.logar(cpf, senha) espera
+    // Agora que o loginData tem a propriedade 'cpf', o erro desaparece
     this.usuarioService.logar(this.loginData).subscribe({
-      next: (resposta) => {
-        // Guarda o token no navegador
+       next: (resposta) => {
         localStorage.setItem('token', resposta.token_jwt);
         alert('Login efetuado com sucesso!');
         this.router.navigate(['/home']);

@@ -21,4 +21,17 @@ export class App {
     }
     return false;
   }
+  // ... dentro da classe App
+  
+  getNomeUsuario(): string {
+    // Busca o nome guardado no login. 
+    // Ajuste a chave 'usuarioNome' se a sua for diferente.
+    return localStorage.getItem('usuarioNome') || 'Perfil';
+  }
+
+  deslogar() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('usuarioNome'); // Remove também o nome
+    window.location.reload(); // Recarrega para atualizar o menu
+  }
 }
