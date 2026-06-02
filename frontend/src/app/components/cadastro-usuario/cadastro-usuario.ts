@@ -20,7 +20,6 @@ export class CadastroUsuarioComponent {
   };
 
 // ... o resto do código continua igual
-// ... o resto do código continua igual
 
   constructor(private usuarioService: UsuarioService, private router: Router) {}
 

@@ -15,8 +15,26 @@ class UsuarioDAO(BaseDAO):
         return self.obterRegistroPorParametro("select id, cpf, nome, email, hash_senha, usuario_admin from usuarios where cpf = ?", parametros)
     
     def salvar(self, cpf, nome, email, senha):
-        parametros = [cpf, nome, email, senha, False]
-        return self.executarComandoDML("insert into usuarios (cpf, nome, email, hash_senha, usuario_admin) values (?, ?, ?, ?, ?)", parametros)
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        try:
+            # O seu SQL espera: cpf, email, nome, usuario_admin, hash_senha
+            # O BC envia: cpf, nome, email, senha
+            
+            usuario_admin = 0 # Valor padrão para novo usuário
+            
+            cursor.execute('''
+                INSERT INTO usuarios (cpf, email, nome, usuario_admin, hash_senha)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (cpf, email, nome, usuario_admin, senha))
+            
+            conn.commit()
+            return cursor.rowcount # Retorna 1 se salvou com sucesso
+        except Exception as e:
+            print(f"Erro no SQL: {e}")
+            return 0
+        finally:
+            conn.close()
     
     def atualizar(self, id, nome, email, senha):
         parametros = [nome, email, senha, id]
