@@ -25,19 +25,23 @@ export class CadastroUsuarioComponent {
 
   constructor(private usuarioService: UsuarioService, private router: Router) {}
 
- cadastrar() {
-    // Antes de enviar, preenchemos os campos obrigatórios ocultos
-    this.novoUsuario.hash_senha = this.novoUsuario.senha;
-    this.novoUsuario.usuario_admin = 0; 
+cadastrar() {
+    // Mande apenas o necessário
+    const payload = {
+      nome: this.novoUsuario.nome,
+      cpf: this.novoUsuario.cpf,
+      email: this.novoUsuario.email,
+      senha: this.novoUsuario.senha
+    };
 
-    this.usuarioService.cadastrar(this.novoUsuario).subscribe({
+    this.usuarioService.cadastrar(payload).subscribe({
       next: (res) => {
         alert('Conta criada com sucesso!');
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        console.error('Erro detalhado:', err);
-        alert('Erro: ' + (err.error?.msg || 'Falha ao salvar no banco'));
+        console.log(err); // Veja no console do navegador o que o Python está a devolver
+        alert('Erro ao cadastrar. Verifique o console.');
       }
     });
   }

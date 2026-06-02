@@ -9,7 +9,15 @@ export class UsuarioService {
   constructor(private http: HttpClient) {}
 
   cadastrar(usuario: any): Observable<any> {
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post(this.apiUrl, JSON.stringify(usuario), { headers });
-  }
+  const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+  // IMPORTANTE: Envie apenas os campos que o UsuarioBC espera (cpf, nome, email, senha)
+  // Não envie 'hash_senha' ou 'usuario_admin' se o UsuarioBC não os espera.
+  const dados = {
+    cpf: usuario.cpf,
+    nome: usuario.nome,
+    email: usuario.email,
+    senha: usuario.senha
+  };
+  return this.http.post(this.apiUrl, dados, { headers });
+}
 }
