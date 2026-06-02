@@ -1,4 +1,4 @@
-import { Component, signal, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 
@@ -9,29 +9,36 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
   templateUrl: './app.html'
 })
 export class App {
-  protected readonly title = signal('frontend');
+  // Variável para controlar se o menu está aberto ou fechado
+  isDropdownOpen = false;
 
-  // Injetamos a ferramenta que descobre onde o código está a rodar
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   usuarioEstaLogado(): boolean {
-    // Só tenta procurar o token se estiver efetivamente no ecrã do utilizador (browser)
-    if (isPlatformBrowser(this.platformId)) {
+     if (isPlatformBrowser(this.platformId)) {
       return !!localStorage.getItem('token');
     }
     return false;
   }
-  // ... dentro da classe App
-  
+
   getNomeUsuario(): string {
-    // Busca o nome guardado no login. 
-    // Ajuste a chave 'usuarioNome' se a sua for diferente.
-    return localStorage.getItem('usuarioNome') || 'Perfil';
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('usuarioNome') || 'Usuário';
+    }
+    return 'Usuário';
   }
 
   deslogar() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuarioNome'); // Remove também o nome
-    window.location.reload(); // Recarrega para atualizar o menu
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('usuarioNome');
+      this.isDropdownOpen = false; // Fecha o menu ao sair
+      window.location.reload();
+    }
+  }
+
+  // Função que inverte o estado do menu ao clicar
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
   }
 }
