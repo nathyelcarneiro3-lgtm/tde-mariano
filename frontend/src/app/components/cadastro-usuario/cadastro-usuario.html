@@ -15,7 +15,12 @@
 
       <form (ngSubmit)="cadastrar()">
         
-       <div class="mb-3">
+        <div class="mb-3">
+          <label for="nome" class="form-label small fw-bold text-secondary">Nome Completo</label>
+          <input type="text" id="nome" class="form-control custom-input" [(ngModel)]="novoUsuario.nome" name="nome" placeholder="Ex: Nathyel Lopes" required>
+        </div>
+
+        <div class="mb-3">
           <label for="cpf" class="form-label small fw-bold text-secondary">CPF</label>
           <input type="text" id="cpf" class="form-control custom-input" [(ngModel)]="novoUsuario.cpf" name="cpf" placeholder="000.000.000-00" required>
         </div>
@@ -27,8 +32,19 @@
 
         <div class="mb-4">
           <label for="senha" class="form-label small fw-bold text-secondary">Palavra-passe</label>
-          <input type="password" id="senha" class="form-control custom-input" [(ngModel)]="novoUsuario.senha" name="senha" placeholder="Crie uma palavra-passe forte" required>
+          <input type="password" id="senha" class="form-control custom-input" [(ngModel)]="novoUsuario.senha" name="senha" placeholder="Crie uma senha forte" required>
         </div>
+
+        <div class="d-grid mt-4 gap-3">
+          <button type="submit" class="btn custom-btn shadow-sm">
+            Criar Minha Conta
+          </button>
+          <a routerLink="/login" class="btn btn-light fw-bold" style="border: 2px solid #e2e8f0; color: #475569;">
+            Já tenho uma conta
+          </a>
+        </div>
+
+      </form>
 
         <div class="d-grid mt-4 gap-3">
           <button type="submit" class="btn custom-btn shadow-sm">

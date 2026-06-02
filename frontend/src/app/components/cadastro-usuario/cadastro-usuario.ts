@@ -12,11 +12,14 @@ import { UsuarioService } from '../../services/usuario'; // O serviço que acab�
 })
 export class CadastroUsuarioComponent {
   novoUsuario = {
-    nome: '',
+    id: null,      // <-- BASTA ADICIONAR ESTA LINHA!
     cpf: '',
-    email: '', // <-- ADICIONE ESTA LINHA!
+    nome: '',
+    email: '',
     senha: ''
   };
+
+// ... o resto do código continua igual
 // ... o resto do código continua igual
 
   constructor(private usuarioService: UsuarioService, private router: Router) {}
