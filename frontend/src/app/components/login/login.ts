@@ -12,14 +12,25 @@ import { RouterLink } from '@angular/router'; // 1. Adicionado aqui!
 export class LoginComponent {
   
   loginData = {
-    cpf: '',
+    email: '', // Trocamos cpf por email
     senha: ''
   };
 
-
+  
   fazerLogin() {
-    console.log('Tentativa de login:', this.loginData);
-    alert('Tentativa de login para o CPF: ' + this.loginData.cpf);
-    // Em breve vamos conectar isso ao backend!
+    console.log('Tentativa de login com:', this.loginData);
+    
+    // Agora, se o seu backend esperar o campo 'cpf' mas você quer passar o email,
+    // você tem duas opções:
+    // 1. Enviar como 'cpf' mesmo (se o backend usar o campo CPF para guardar o email)
+    // 2. Enviar como 'email' (se o backend estiver configurado para isso)
+    
+    // Mantenha assim se o backend espera 'cpf':
+    const payload = {
+       cpf: this.loginData.email, // O backend recebe como 'cpf'
+       senha: this.loginData.senha
+    };
+
+    // ... código de chamada ao serviço ...
   }
 }
