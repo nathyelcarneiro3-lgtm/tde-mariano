@@ -11,27 +11,33 @@ import { UsuarioService } from '../../services/usuario'; // O serviço que acab�
   templateUrl: './cadastro-usuario.html'
 })
 export class CadastroUsuarioComponent {
-  novoUsuario = {
-    id: null,      // <-- BASTA ADICIONAR ESTA LINHA!
-    cpf: '',
+   novoUsuario = {
     nome: '',
+    cpf: '',
     email: '',
-    senha: ''
+    senha: '',        // A senha que o usuário digita
+    hash_senha: '',   // Iremos copiar a senha para cá
+    usuario_admin: 0  // Valor fixo que o banco exige
   };
 
+  
 // ... o resto do código continua igual
 
   constructor(private usuarioService: UsuarioService, private router: Router) {}
 
-  cadastrar() {
+ cadastrar() {
+    // Antes de enviar, preenchemos os campos obrigatórios ocultos
+    this.novoUsuario.hash_senha = this.novoUsuario.senha;
+    this.novoUsuario.usuario_admin = 0; 
+
     this.usuarioService.cadastrar(this.novoUsuario).subscribe({
-      next: (resposta) => {
-        alert('Conta criada com sucesso! Já pode iniciar sessão.');
-        this.router.navigate(['/login']); // Redireciona para o login
+      next: (res) => {
+        alert('Conta criada com sucesso!');
+        this.router.navigate(['/login']);
       },
-      error: (erro) => {
-        console.error('Erro ao criar utilizador', erro);
-        alert('Ocorreu um erro ao criar a conta. Verifique os dados.');
+      error: (err) => {
+        console.error('Erro detalhado:', err);
+        alert('Erro: ' + (err.error?.msg || 'Falha ao salvar no banco'));
       }
     });
   }

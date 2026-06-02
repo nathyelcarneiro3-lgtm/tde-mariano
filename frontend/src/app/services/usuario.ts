@@ -1,17 +1,15 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class UsuarioService {
-  // Ajuste o URL se a sua rota no Python for diferente
-  private apiUrl = 'http://localhost:5000/api/v1/usuario'; 
+  private apiUrl = 'http://127.0.0.1:5000/api/v1/usuario';
 
   constructor(private http: HttpClient) {}
 
   cadastrar(usuario: any): Observable<any> {
-    return this.http.post(this.apiUrl, usuario);
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post(this.apiUrl, JSON.stringify(usuario), { headers });
   }
 }
