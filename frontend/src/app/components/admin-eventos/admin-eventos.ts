@@ -23,10 +23,22 @@ export class AdminEventosComponent implements OnInit {
     this.carregarEventos();
   }
 
-  carregarEventos(): void {
+ carregarEventos(): void {
     this.eventoService.obterTodos().subscribe({
       next: (dados: any) => {
-         this.eventos = dados;
+         console.log('O que chegou do Python:', dados); // Para você ver no F12
+         
+         // Tenta pegar a lista de eventos de qualquer formato que o Python mandar
+         if (Array.isArray(dados)) {
+           this.eventos = dados; // Se for direto uma lista
+         } else if (dados && dados.eventos) {
+           this.eventos = dados.eventos; // Se vier dentro de uma chave "eventos"
+         } else if (dados && dados.data) {
+           this.eventos = dados.data; // Se vier dentro de uma chave "data"
+         } else {
+           // Se for um formato desconhecido, joga o objeto numa lista
+           this.eventos = [dados]; 
+         }
       },
       error: (erro: any) => {
         console.error('Erro ao carregar eventos:', erro);

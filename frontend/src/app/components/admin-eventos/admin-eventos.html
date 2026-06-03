@@ -23,23 +23,21 @@
         <th style="padding: 1rem; text-align: center;">Ações</th>
       </tr>
     </thead>
-    <tbody>
-      <tr *ngFor="let evento of eventos">
-        <td style="padding: 1rem;">{{ evento.id }}</td>
-        <td style="padding: 1rem;" class="fw-bold text-dark">{{ evento.nome }}</td>
-        <td style="padding: 1rem;">{{ evento.local || 'Não definido' }}</td>
-        <td style="padding: 1rem;" class="text-secondary small">{{ evento.descricao }}</td>
-        <td style="padding: 1rem; text-align: center;">
-  <button class="btn btn-sm btn-outline-primary me-2" (click)="editarEvento(evento.id)">Editar</button>
-  <button class="btn btn-sm btn-outline-danger" (click)="excluirEvento(evento.id)">Excluir</button>
-   </td>
-      </tr>
-
-      <tr *ngIf="eventos.length === 0">
-        <td colspan="5" class="text-center text-muted py-4">
-          Nenhum evento encontrado no sistema.
-          </td>
-      </tr>
-    </tbody>
+   <tbody>
+  <tr *ngFor="let evento of eventos">
+    <td>{{ evento.id }}</td>
+    <td>{{ evento.nome }}</td> <td>{{ evento.dt_inicio }}</td> <td>{{ evento.dt_fim }}</td>
+    <td style="text-align: center;">
+      <button class="btn btn-sm btn-outline-primary me-2" (click)="editarEvento(evento.id)">Editar</button>
+      <button class="btn btn-sm btn-outline-danger" (click)="excluirEvento(evento.id)">Excluir</button>
+    </td>
+  </tr>
+  
+  <tr *ngIf="eventos.length === 0">
+    <td colspan="5" class="text-center py-4 text-muted">
+      Nenhum evento encontrado no banco de dados.
+    </td>
+  </tr>
+</tbody>
   </table>
 </div>
