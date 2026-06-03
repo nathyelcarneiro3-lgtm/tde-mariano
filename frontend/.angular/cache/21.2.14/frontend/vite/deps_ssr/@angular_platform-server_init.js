@@ -1,7 +1,7 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
   index
-} from "./chunk-OPY43WTJ.js";
+} from "./chunk-7VO7PY3Q.js";
 import "./chunk-6DU2HRTW.js";
 
 // node_modules/@angular/platform-server/fesm2022/init.mjs

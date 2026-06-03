@@ -1,82 +1,82 @@
 {
-  "hash": "46c536f5",
-  "configHash": "e382d0f9",
-  "lockfileHash": "2e444f55",
-  "browserHash": "2f1e67d6",
+  "hash": "4cecbafa",
+  "configHash": "873f06db",
+  "lockfileHash": "b1bd9220",
+  "browserHash": "2f1245a5",
   "optimized": {
     "@angular/common": {
       "src": "../../../../../../node_modules/@angular/common/fesm2022/common.mjs",
       "file": "@angular_common.js",
-      "fileHash": "0d4735e7",
+      "fileHash": "978aeebc",
       "needsInterop": false
     },
     "@angular/common/http": {
       "src": "../../../../../../node_modules/@angular/common/fesm2022/http.mjs",
       "file": "@angular_common_http.js",
-      "fileHash": "37d8502a",
+      "fileHash": "2d7da588",
       "needsInterop": false
     },
     "@angular/core": {
       "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
       "file": "@angular_core.js",
-      "fileHash": "b9a6ec5f",
+      "fileHash": "69e72007",
       "needsInterop": false
     },
     "@angular/forms": {
       "src": "../../../../../../node_modules/@angular/forms/fesm2022/forms.mjs",
       "file": "@angular_forms.js",
-      "fileHash": "ce4a169d",
+      "fileHash": "a074b675",
       "needsInterop": false
     },
     "@angular/platform-browser": {
       "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
       "file": "@angular_platform-browser.js",
-      "fileHash": "896c80ac",
+      "fileHash": "ae340bb4",
       "needsInterop": false
     },
     "@angular/router": {
       "src": "../../../../../../node_modules/@angular/router/fesm2022/router.mjs",
       "file": "@angular_router.js",
-      "fileHash": "23c7bfc6",
+      "fileHash": "550ddbca",
       "needsInterop": false
     },
     "rxjs": {
       "src": "../../../../../../node_modules/rxjs/dist/esm5/index.js",
       "file": "rxjs.js",
-      "fileHash": "6db9f93b",
+      "fileHash": "352c8f96",
       "needsInterop": false
     },
     "rxjs/operators": {
       "src": "../../../../../../node_modules/rxjs/dist/esm5/operators/index.js",
       "file": "rxjs_operators.js",
-      "fileHash": "5ee19a0c",
+      "fileHash": "6c98dea4",
       "needsInterop": false
     }
   },
   "chunks": {
-    "chunk-ILDAO7OB": {
-      "file": "chunk-ILDAO7OB.js"
+    "chunk-HIUT2OPM": {
+      "file": "chunk-HIUT2OPM.js"
     },
-    "chunk-4RBAKOCC": {
-      "file": "chunk-4RBAKOCC.js"
+    "chunk-VEPCWCFB": {
+      "file": "chunk-VEPCWCFB.js"
     },
-    "chunk-4TLMY3ZW": {
-      "file": "chunk-4TLMY3ZW.js"
+    "chunk-WINOGXXF": {
+      "file": "chunk-WINOGXXF.js"
     },
-    "chunk-PXVQXSGR": {
-      "file": "chunk-PXVQXSGR.js"
+    "chunk-K6ND7Q4D": {
+      "file": "chunk-K6ND7Q4D.js"
     },
-    "chunk-G3744AOK": {
-      "file": "chunk-G3744AOK.js"
+    "chunk-2AOJSKYU": {
+      "file": "chunk-2AOJSKYU.js"
     },
-    "chunk-5GZPBGYT": {
-      "file": "chunk-5GZPBGYT.js"
+    "chunk-J46EEYGT": {
+      "file": "chunk-J46EEYGT.js"
     },
-    "chunk-7Z4YW3FP": {
-      "file": "chunk-7Z4YW3FP.js"
+    "chunk-4YCCEXQQ": {
+      "file": "chunk-4YCCEXQQ.js"
     },
-    "chunk-GJVV2SYQ": {
-      "file": "chunk-GJVV2SYQ.js"
+    "chunk-U7EDC2PH": {
+      "file": "chunk-U7EDC2PH.js"
     }
   }
 }
