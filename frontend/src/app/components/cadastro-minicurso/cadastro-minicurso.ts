@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MinicursoService } from '../../services/minicurso';
@@ -9,7 +9,8 @@ import { EventoService } from '../../services/evento';
   selector: 'app-cadastro-minicurso',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './cadastro-minicurso.html'
+  templateUrl: './cadastro-minicurso.html',
+  styleUrls: ['./cadastro-minicurso.css']
 })
 export class CadastroMinicursoComponent implements OnInit {
   minicurso: any = {
@@ -35,10 +36,15 @@ export class CadastroMinicursoComponent implements OnInit {
     private minicursoService: MinicursoService,
     private eventoService: EventoService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (!localStorage.getItem('token')) { this.router.navigate(['/login']); return; }
+    if (localStorage.getItem('usuarioAdmin') !== '1') { this.router.navigate(['/home']); return; }
+
     this.eventoService.obterTodos().subscribe({
       next: (dados: any) => { this.eventos = Array.isArray(dados) ? dados : []; },
       error: () => { this.eventos = []; }
@@ -60,12 +66,12 @@ export class CadastroMinicursoComponent implements OnInit {
           id_evento:                res.id_evento,
           nome:                     res.nome || '',
           descricao:                res.descricao || '',
-          dt_minicurso:             (res.dt_minicurso || '').split('T')[0],
+          dt_minicurso:             (res.dt_minicurso || '').split('T')[0].split(' ')[0],
           horario_inicio_minicurso: res.horario_inicio_minicurso || '',
           horario_fim_minicurso:    res.horario_fim_minicurso || '',
           nome_instrutor:           res.nome_instrutor || '',
           minicurriculo_instrutor:  res.minicurriculo_instrutor || '',
-          dt_limite_inscricao:      (res.dt_limite_inscricao || '').split('T')[0],
+          dt_limite_inscricao:      (res.dt_limite_inscricao || '').split('T')[0].split(' ')[0],
           numero_vagas:             res.vagas_disponiveis ?? res.numero_vagas ?? null
         };
         this.carregando = false;
@@ -87,7 +93,7 @@ export class CadastroMinicursoComponent implements OnInit {
 
     acao.subscribe({
       next: () => {
-        alert(this.isEdit ? 'Minicurso atualizado!' : 'Minicurso cadastrado!');
+        alert(this.isEdit ? 'Minicurso atualizado com sucesso!' : 'Minicurso cadastrado com sucesso!');
         this.router.navigate(['/lista-minicursos']);
       },
       error: (err: any) => {

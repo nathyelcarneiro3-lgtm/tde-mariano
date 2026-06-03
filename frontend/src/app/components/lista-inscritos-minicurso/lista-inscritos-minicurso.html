@@ -1,48 +1,90 @@
-<div class="container py-5">
+<!-- Carregando -->
+<div *ngIf="carregando" class="text-center py-5">
+  <div class="spinner-border" style="color: var(--cor-destaque-dourado);" role="status"></div>
+  <p class="mt-3" style="color: var(--cor-texto-secundario);">Carregando participantes...</p>
+</div>
+
+<div *ngIf="!carregando">
+
+  <!-- Cabeçalho -->
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <div>
-      <h2 class="fw-bold mb-0">Inscritos no Minicurso</h2>
-      <p class="text-muted small mb-0">Lista de participantes inscritos neste minicurso.</p>
+      <h2 class="fw-bold mb-1" style="color: var(--cor-texto-principal);">👥 Inscritos no Minicurso</h2>
+      <p class="mb-0 small" style="color: var(--cor-texto-secundario);">
+        <span *ngIf="nomeMinicurso">
+          <strong class="text-white">{{ nomeMinicurso }}</strong> &nbsp;·&nbsp;
+        </span>
+        ID: <strong class="text-white">{{ minicursoId }}</strong>
+      </p>
     </div>
     <div class="d-flex gap-2">
-      <button class="btn btn-outline-secondary" routerLink="/lista-minicursos">← Voltar</button>
-      <button class="btn btn-outline-secondary" (click)="carregar()">Atualizar</button>
+      <button class="btn btn-sm btn-outline-secondary" (click)="carregar()">🔄 Atualizar</button>
+      <button class="btn btn-sm btn-outline-secondary" routerLink="/lista-minicursos">← Voltar</button>
     </div>
   </div>
-  <hr class="mb-4">
 
-  <div *ngIf="carregando" class="text-center py-5">
-    <div class="spinner-border text-warning" role="status"></div>
-    <p class="mt-3 text-muted">Carregando inscritos...</p>
+  <!-- Alertas -->
+  <div *ngIf="erroMsg" class="alert alert-danger rounded-3 mb-4">{{ erroMsg }}</div>
+  <div *ngIf="sucessoMsg" class="alert alert-success rounded-3 mb-4">{{ sucessoMsg }}</div>
+
+  <!-- Busca + contador -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
+    <input type="text" class="form-control" style="max-width:340px;"
+           placeholder="🔍 Buscar por nome, CPF ou e-mail..."
+           [(ngModel)]="termoBusca" />
+    <span class="small" style="color:var(--cor-texto-secundario);white-space:nowrap;">
+      {{ inscritosFiltrados.length }} participante(s)
+      <span *ngIf="termoBusca"> encontrado(s)</span>
+      <span *ngIf="!termoBusca"> inscrito(s)</span>
+    </span>
   </div>
 
-  <div *ngIf="erroMsg && !carregando" class="alert alert-danger rounded-3">
-    <strong>{{ erroMsg }}</strong>
-    <div class="mt-2"><button class="btn btn-sm btn-outline-danger" (click)="carregar()">Tentar novamente</button></div>
-  </div>
-
-  <div class="table-responsive bg-white shadow-sm rounded border" *ngIf="!carregando && !erroMsg">
+  <!-- Tabela -->
+  <div class="table-responsive rounded-3 shadow-sm" style="border:1px solid rgba(255,255,255,0.08);">
     <table class="table table-hover align-middle mb-0">
-      <thead class="table-light">
+      <thead>
         <tr>
-          <th style="padding:1rem">CPF</th>
+          <th style="padding:1rem">#</th>
           <th style="padding:1rem">Nome</th>
+          <th style="padding:1rem">CPF</th>
           <th style="padding:1rem">E-mail</th>
+          <th *ngIf="isAdmin" style="padding:1rem;text-align:center">Ações</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let i of inscritos">
-          <td style="padding:1rem"><code>{{ i.cpf || '—' }}</code></td>
-          <td style="padding:1rem">{{ i.nome || '—' }}</td>
-          <td style="padding:1rem">{{ i.email || '—' }}</td>
+
+        <tr *ngFor="let i of inscritosFiltrados; let idx = index">
+          <td style="padding:1rem;color:var(--cor-texto-secundario)">{{ idx + 1 }}</td>
+          <td style="padding:1rem;font-weight:500">{{ i.nome || '—' }}</td>
+          <td style="padding:1rem">
+            <code style="color:var(--cor-destaque-dourado);font-size:0.85rem">{{ i.cpf || '—' }}</code>
+          </td>
+          <td style="padding:1rem;color:var(--cor-texto-secundario)">{{ i.email || '—' }}</td>
+          <td *ngIf="isAdmin" style="padding:1rem;text-align:center">
+            <button class="btn btn-sm btn-outline-danger"
+                    (click)="removerInscricao(i.id, i.nome)"
+                    [disabled]="removendo === i.id">
+              <span *ngIf="removendo === i.id" class="spinner-border spinner-border-sm me-1" role="status"></span>
+              {{ removendo === i.id ? 'Removendo...' : 'Remover' }}
+            </button>
+          </td>
         </tr>
+
+        <tr *ngIf="inscritos.length > 0 && inscritosFiltrados.length === 0">
+          <td [attr.colspan]="isAdmin ? 5 : 4" class="text-center py-4" style="color:var(--cor-texto-secundario)">
+            Nenhum participante encontrado para "<strong>{{ termoBusca }}</strong>".
+          </td>
+        </tr>
+
         <tr *ngIf="inscritos.length === 0">
-          <td colspan="3" class="text-center py-5 text-muted">Nenhum inscrito neste minicurso.</td>
+          <td [attr.colspan]="isAdmin ? 5 : 4" class="text-center py-5">
+            <div style="font-size:3rem;opacity:0.2;margin-bottom:12px">👤</div>
+            <p style="color:var(--cor-texto-secundario)">Nenhum participante inscrito neste minicurso.</p>
+          </td>
         </tr>
+
       </tbody>
     </table>
   </div>
-  <p class="text-muted small mt-3" *ngIf="!carregando && inscritos.length > 0">
-    Total: {{ inscritos.length }} inscrito(s).
-  </p>
+
 </div>

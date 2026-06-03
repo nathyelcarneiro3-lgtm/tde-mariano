@@ -1,5 +1,6 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { MinicursoService } from '../../services/minicurso';
 import { UsuarioService } from '../../services/usuario';
@@ -7,15 +8,34 @@ import { UsuarioService } from '../../services/usuario';
 @Component({
   selector: 'app-lista-minicursos',
   standalone: true,
-  imports: [CommonModule, RouterModule],
-  templateUrl: './lista-minicursos.html'
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './lista-minicursos.html',
+  styleUrls: ['./lista-minicursos.css']
 })
 export class ListaMinicursosComponent implements OnInit {
   minicursos: any[] = [];
   carregando = true;
   erroMsg = '';
+  sucessoMsg = '';
   isAdmin = false;
   idLogado = 0;
+  removendo: number | null = null;
+  inscrevendo: number | null = null;
+
+  // Filtro por evento
+  filtroIdEvento: number | null = null;
+  get minicursosFiltrados(): any[] {
+    if (!this.filtroIdEvento) return this.minicursos;
+    return this.minicursos.filter(m => Number(m.id_evento) === Number(this.filtroIdEvento));
+  }
+  get eventosFiltro(): any[] {
+    const ids = new Set<number>();
+    const result: any[] = [];
+    for (const m of this.minicursos) {
+      if (!ids.has(m.id_evento)) { ids.add(m.id_evento); result.push({ id: m.id_evento, nome: m.nome_evento || `Evento #${m.id_evento}` }); }
+    }
+    return result;
+  }
 
   constructor(
     private minicursoService: MinicursoService,
@@ -26,6 +46,7 @@ export class ListaMinicursosComponent implements OnInit {
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
+    if (!localStorage.getItem('token')) { this.router.navigate(['/login']); return; }
     this.isAdmin = this.usuarioService.isAdmin();
     this.idLogado = this.usuarioService.getIdLogado();
     this.carregar();
@@ -40,7 +61,8 @@ export class ListaMinicursosComponent implements OnInit {
         this.minicursos = lista.map((m: any) => ({
           ...m,
           dt_fmt:        this.fmtData(m.dt_minicurso),
-          dt_limite_fmt: this.fmtData(m.dt_limite_inscricao)
+          dt_limite_fmt: this.fmtData(m.dt_limite_inscricao),
+          inscricaoEncerrada: this.inscricaoEncerrada(m.dt_limite_inscricao)
         }));
         this.carregando = false;
       },
@@ -53,33 +75,56 @@ export class ListaMinicursosComponent implements OnInit {
 
   private fmtData(v: string): string {
     if (!v) return '—';
-    const s = v.split('T')[0];
-    const [a, m, d] = s.split('-');
-    return `${d}/${m}/${a}`;
+    const s = v.split('T')[0].split(' ')[0];
+    if (s.includes('-')) { const [a, m, d] = s.split('-'); return `${d}/${m}/${a}`; }
+    return s;
   }
 
-  editar(id: number): void {
-    this.router.navigate(['/cadastro-minicurso', id]);
+  private inscricaoEncerrada(dtLimite: string): boolean {
+    if (!dtLimite) return true;
+    const d = dtLimite.split('T')[0].split(' ')[0];
+    return new Date(d) < new Date(new Date().toISOString().split('T')[0]);
   }
 
-  verInscritos(id: number): void {
-    this.router.navigate(['/inscritos-minicurso', id]);
+  editar(id: number): void { this.router.navigate(['/cadastro-minicurso', id]); }
+
+  verInscritos(m: any): void {
+    this.router.navigate(['/inscritos-minicurso', m.id], { state: { nomeMinicurso: m.nome } });
   }
 
   inscrever(m: any): void {
     if (!this.idLogado) { alert('Você precisa estar logado.'); return; }
-    if (!confirm(`Deseja se inscrever no minicurso "${m.nome}"?`)) return;
+    if (!confirm(`Deseja se inscrever no minicurso "${m.nome}"?\n\nAtenção: você precisa estar inscrito no evento ao qual este minicurso pertence.`)) return;
+    this.inscrevendo = m.id;
+    this.erroMsg = '';
+    this.sucessoMsg = '';
     this.minicursoService.inscrever(m.id, this.idLogado).subscribe({
-      next: () => { alert('Inscrição realizada com sucesso!'); this.carregar(); },
-      error: (err: any) => alert(err?.error?.msg || 'Erro ao se inscrever.')
+      next: (resp: any) => {
+        this.inscrevendo = null;
+        this.sucessoMsg = resp?.msg || 'Inscrição realizada com sucesso! 🎉';
+        this.carregar();
+      },
+      error: (err: any) => {
+        this.inscrevendo = null;
+        this.erroMsg = err?.error?.msg || 'Erro ao realizar inscrição.';
+      }
     });
   }
 
   remover(id: number, nome: string): void {
     if (!confirm(`Remover o minicurso "${nome}"?`)) return;
+    this.removendo = id;
+    this.erroMsg = '';
     this.minicursoService.remover(id).subscribe({
-      next: () => { alert('Minicurso removido!'); this.carregar(); },
-      error: (err: any) => alert(err?.error?.msg || 'Erro ao remover minicurso.')
+      next: (resp: any) => {
+        this.removendo = null;
+        this.sucessoMsg = resp?.msg || 'Minicurso removido com sucesso.';
+        this.carregar();
+      },
+      error: (err: any) => {
+        this.removendo = null;
+        this.erroMsg = err?.error?.msg || 'Erro ao remover minicurso.';
+      }
     });
   }
 }

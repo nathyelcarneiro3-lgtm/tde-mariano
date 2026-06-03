@@ -1,64 +1,135 @@
-<div class="container py-5">
+<!-- Spinner -->
+<div *ngIf="carregando" class="text-center py-5">
+  <div class="spinner-border" style="color: var(--cor-destaque-dourado);" role="status"></div>
+  <p class="mt-3" style="color: var(--cor-texto-secundario);">Carregando minicursos...</p>
+</div>
+
+<div *ngIf="!carregando">
+
+  <!-- Cabeçalho -->
   <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <div>
-      <h2 class="fw-bold mb-0">Minicursos</h2>
-      <p class="text-muted small mb-0">Todos os minicursos cadastrados no sistema.</p>
+      <h2 class="fw-bold mb-1" style="color: var(--cor-texto-principal);">🎓 Minicursos</h2>
+      <p class="mb-0 small" style="color: var(--cor-texto-secundario);">
+        Todos os minicursos disponíveis no sistema.
+      </p>
     </div>
-    <div class="d-flex gap-2">
-      <button class="btn btn-outline-secondary" (click)="carregar()" [disabled]="carregando">Atualizar</button>
-      <button *ngIf="isAdmin" class="btn btn-primary fw-bold px-4" routerLink="/cadastro-minicurso">+ Novo Minicurso</button>
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-sm btn-outline-secondary" (click)="carregar()" [disabled]="carregando">
+        🔄 Atualizar
+      </button>
+      <button *ngIf="isAdmin" class="btn btn-sm btn-primary fw-bold px-3"
+              routerLink="/cadastro-minicurso">
+        + Novo Minicurso
+      </button>
     </div>
   </div>
-  <hr class="mb-4">
 
-  <div *ngIf="carregando" class="text-center py-5">
-    <div class="spinner-border text-warning" role="status"></div>
-    <p class="mt-3 text-muted">Carregando minicursos...</p>
+  <!-- Alertas -->
+  <div *ngIf="erroMsg" class="alert alert-danger rounded-3 mb-4">{{ erroMsg }}</div>
+  <div *ngIf="sucessoMsg" class="alert alert-success rounded-3 mb-4">{{ sucessoMsg }}</div>
+
+  <!-- Filtro por evento -->
+  <div class="d-flex align-items-center gap-3 mb-3 flex-wrap" *ngIf="minicursos.length > 0">
+    <label class="small fw-bold mb-0" style="color: var(--cor-texto-secundario);">🔍 Filtrar por evento:</label>
+    <select class="form-select form-select-sm" style="max-width:280px;" [(ngModel)]="filtroIdEvento">
+      <option [ngValue]="null">Todos os eventos</option>
+      <option *ngFor="let e of eventosFiltro" [value]="e.id">Evento #{{ e.id }}</option>
+    </select>
+    <span class="small" style="color: var(--cor-texto-secundario);">
+      {{ minicursosFiltrados.length }} minicurso(s)
+    </span>
   </div>
 
-  <div *ngIf="erroMsg && !carregando" class="alert alert-danger rounded-3">
-    <strong>{{ erroMsg }}</strong>
-    <div class="mt-2"><button class="btn btn-sm btn-outline-danger" (click)="carregar()">Tentar novamente</button></div>
-  </div>
-
-  <div class="table-responsive bg-white shadow-sm rounded border" *ngIf="!carregando && !erroMsg">
+  <!-- Tabela -->
+  <div class="table-responsive rounded-3 shadow-sm" style="border: 1px solid rgba(255,255,255,0.08);">
     <table class="table table-hover align-middle mb-0">
-      <thead class="table-light">
+      <thead>
         <tr>
           <th style="padding:1rem">Nome</th>
           <th style="padding:1rem">Instrutor</th>
           <th style="padding:1rem">Data</th>
-          <th style="padding:1rem">Início</th>
-          <th style="padding:1rem">Fim</th>
+          <th style="padding:1rem">Horário</th>
           <th style="padding:1rem">Vagas</th>
           <th style="padding:1rem">Limite Inscrição</th>
           <th style="padding:1rem;text-align:center">Ações</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let m of minicursos">
-          <td style="padding:1rem;font-weight:500">{{ m.nome }}</td>
-          <td style="padding:1rem">{{ m.nome_instrutor }}</td>
+
+        <tr *ngFor="let m of minicursosFiltrados">
+          <td style="padding:1rem;font-weight:500">
+            {{ m.nome }}
+            <span class="badge ms-1 rounded-pill"
+                  style="font-size:0.7rem;"
+                  [style.background]="m.inscricaoEncerrada ? 'rgba(239,68,68,0.15)' : 'rgba(34,197,94,0.15)'"
+                  [style.color]="m.inscricaoEncerrada ? '#f87171' : '#4ade80'">
+              {{ m.inscricaoEncerrada ? 'Encerrado' : 'Aberto' }}
+            </span>
+          </td>
+          <td style="padding:1rem;color:var(--cor-texto-secundario)">{{ m.nome_instrutor }}</td>
           <td style="padding:1rem">{{ m.dt_fmt }}</td>
-          <td style="padding:1rem">{{ m.horario_inicio_minicurso }}</td>
-          <td style="padding:1rem">{{ m.horario_fim_minicurso }}</td>
-          <td style="padding:1rem">{{ m.vagas_disponiveis ?? m.numero_vagas ?? '—' }}</td>
-          <td style="padding:1rem">{{ m.dt_limite_fmt }}</td>
+          <td style="padding:1rem;color:var(--cor-texto-secundario)">
+            {{ m.horario_inicio_minicurso }} – {{ m.horario_fim_minicurso }}
+          </td>
+          <td style="padding:1rem">
+            <code style="color:var(--cor-destaque-dourado)">
+              {{ m.vagas_disponiveis ?? m.numero_vagas ?? '—' }}
+            </code>
+          </td>
+          <td style="padding:1rem;color:var(--cor-texto-secundario)">{{ m.dt_limite_fmt }}</td>
           <td style="padding:1rem;text-align:center">
-            <button class="btn btn-sm btn-outline-success me-1" (click)="inscrever(m)" title="Inscrever-se">Inscrever</button>
-            <button class="btn btn-sm btn-outline-info me-1" (click)="verInscritos(m.id)" title="Ver inscritos">Inscritos</button>
-            <button *ngIf="isAdmin" class="btn btn-sm btn-outline-primary me-1" (click)="editar(m.id)">Editar</button>
-            <button *ngIf="isAdmin" class="btn btn-sm btn-outline-danger" (click)="remover(m.id, m.nome)">Remover</button>
+
+            <!-- Inscrever (usuário comum, inscrição aberta) -->
+            <button
+              *ngIf="!isAdmin && !m.inscricaoEncerrada"
+              class="btn btn-sm btn-outline-success me-1"
+              (click)="inscrever(m)"
+              [disabled]="inscrevendo === m.id"
+              title="Inscrever-me neste minicurso">
+              <span *ngIf="inscrevendo === m.id" class="spinner-border spinner-border-sm me-1" role="status"></span>
+              🎟️ Inscrever
+            </button>
+
+            <!-- Ver inscritos -->
+            <button class="btn btn-sm btn-outline-info me-1" (click)="verInscritos(m)" title="Ver participantes inscritos">
+              👥
+            </button>
+
+            <!-- Admin: editar -->
+            <button *ngIf="isAdmin" class="btn btn-sm btn-outline-primary me-1" (click)="editar(m.id)" title="Editar">
+              ✏️
+            </button>
+
+            <!-- Admin: remover -->
+            <button
+              *ngIf="isAdmin"
+              class="btn btn-sm btn-outline-danger"
+              (click)="remover(m.id, m.nome)"
+              [disabled]="removendo === m.id"
+              title="Remover minicurso">
+              <span *ngIf="removendo === m.id" class="spinner-border spinner-border-sm me-1" role="status"></span>
+              🗑️
+            </button>
+
           </td>
         </tr>
-        <tr *ngIf="minicursos.length === 0">
-          <td colspan="8" class="text-center py-5 text-muted">Nenhum minicurso cadastrado.</td>
+
+        <tr *ngIf="minicursosFiltrados.length === 0">
+          <td colspan="7" class="text-center py-5">
+            <div style="font-size:3rem;opacity:0.2;margin-bottom:12px">🎓</div>
+            <p style="color:var(--cor-texto-secundario)">Nenhum minicurso encontrado.</p>
+            <button *ngIf="isAdmin" class="btn btn-sm btn-primary" routerLink="/cadastro-minicurso">
+              + Cadastrar Minicurso
+            </button>
+          </td>
         </tr>
+
       </tbody>
     </table>
   </div>
-  <p class="text-muted small mt-3" *ngIf="!carregando && minicursos.length > 0">
-    Total: {{ minicursos.length }} minicurso(s).
+
+  <p class="small mt-3" style="color:var(--cor-texto-secundario)" *ngIf="minicursos.length > 0">
+    Total: {{ minicursos.length }} minicurso(s) cadastrado(s).
   </p>
 </div>
-

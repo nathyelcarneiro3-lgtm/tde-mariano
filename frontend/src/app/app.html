@@ -1,43 +1,44 @@
 <nav class="navbar navbar-expand-lg navbar-dark mb-4 shadow">
   <div class="container">
     <a class="navbar-brand fw-bold" routerLink="/home">🎫 Portal de Eventos</a>
-    
+
     <div class="collapse navbar-collapse">
       <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item me-2">
           <a class="nav-link" routerLink="/home" routerLinkActive="active">Início</a>
         </li>
-        
-        <!-- Área Admin: só aparece se estiver logado -->
+
+        <!-- Minicursos: visível para todos os logados -->
+        <li class="nav-item me-2" *ngIf="usuarioEstaLogado()">
+          <a class="nav-link" routerLink="/lista-minicursos" routerLinkActive="active">🎓 Minicursos</a>
+        </li>
+
+        <!-- Área Admin -->
         <li class="nav-item me-2" *ngIf="usuarioEstaLogado()">
           <a class="nav-link text-warning fw-bold" routerLink="/admin" routerLinkActive="active">⚙️ Área Admin</a>
         </li>
 
-        <!-- Link Usuários: só aparece para admins -->
+        <!-- Usuários: só admin -->
         <li class="nav-item me-2" *ngIf="usuarioEAdmin()">
           <a class="nav-link text-info fw-bold" routerLink="/lista-usuarios" routerLinkActive="active">👥 Usuários</a>
         </li>
-        
+
         <div *ngIf="!usuarioEstaLogado()">
           <a routerLink="/login" class="btn btn-outline-primary">Fazer Login</a>
         </div>
 
         <div *ngIf="usuarioEstaLogado()" class="dropdown" style="position: relative;">
-          
           <button class="btn btn-secondary dropdown-toggle" type="button" (click)="toggleDropdown()">
             {{ getNomeUsuario() }}
           </button>
-          
           <ul class="dropdown-menu" [class.show]="isDropdownOpen" style="position: absolute; right: 0;">
             <li><a class="dropdown-item" routerLink="/editar-perfil" (click)="toggleDropdown()">✏️ Editar Perfil</a></li>
-            <!-- Item Gerenciar Usuários só para admin -->
             <li *ngIf="usuarioEAdmin()">
               <a class="dropdown-item" routerLink="/lista-usuarios" (click)="toggleDropdown()">👥 Gerenciar Usuários</a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li><button class="dropdown-item text-danger" (click)="deslogar()">Deslogar</button></li>
           </ul>
-          
         </div>
       </ul>
     </div>

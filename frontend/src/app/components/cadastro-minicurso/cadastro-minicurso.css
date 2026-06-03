@@ -1,0 +1,15 @@
+.form-control, .form-select, textarea.form-control {
+  background-color: #0b1120 !important;
+  border: 1px solid #334155 !important;
+  color: var(--cor-texto-principal) !important;
+}
+.form-control:focus, .form-select:focus, textarea.form-control:focus {
+  border-color: var(--cor-destaque-dourado) !important;
+  box-shadow: 0 0 0 0.25rem rgba(212,175,55,0.2) !important;
+}
+.card {
+  background-color: var(--cor-fundo-secundario) !important;
+}
+.form-label {
+  color: var(--cor-texto-secundario) !important;
+}

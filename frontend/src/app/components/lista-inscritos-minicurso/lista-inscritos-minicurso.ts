@@ -1,29 +1,43 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MinicursoService } from '../../services/minicurso';
+import { UsuarioService } from '../../services/usuario';
 
 @Component({
   selector: 'app-lista-inscritos-minicurso',
   standalone: true,
-  imports: [CommonModule, RouterModule],
-  templateUrl: './lista-inscritos-minicurso.html'
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './lista-inscritos-minicurso.html',
+  styleUrls: ['./lista-inscritos-minicurso.css']
 })
 export class ListaInscritosMinicursoComponent implements OnInit {
   inscritos: any[] = [];
   carregando = true;
+  removendo: number | null = null;
   erroMsg = '';
+  sucessoMsg = '';
   minicursoId: number = 0;
+  nomeMinicurso: string = '';
+  isAdmin = false;
+  termoBusca = '';
 
   constructor(
     private minicursoService: MinicursoService,
+    private usuarioService: UsuarioService,
     private route: ActivatedRoute,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
+    if (!localStorage.getItem('token')) { this.router.navigate(['/login']); return; }
+    this.isAdmin = this.usuarioService.isAdmin();
     this.minicursoId = Number(this.route.snapshot.paramMap.get('id'));
+    const state = window.history.state;
+    this.nomeMinicurso = state?.nomeMinicurso || '';
     this.carregar();
   }
 
@@ -38,6 +52,34 @@ export class ListaInscritosMinicursoComponent implements OnInit {
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao carregar inscritos.';
         this.carregando = false;
+      }
+    });
+  }
+
+  get inscritosFiltrados(): any[] {
+    if (!this.termoBusca.trim()) return this.inscritos;
+    const t = this.termoBusca.toLowerCase();
+    return this.inscritos.filter(i =>
+      (i.nome || '').toLowerCase().includes(t) ||
+      (i.cpf || '').includes(t) ||
+      (i.email || '').toLowerCase().includes(t)
+    );
+  }
+
+  removerInscricao(idParticipante: number, nome: string): void {
+    if (!confirm(`Remover a inscrição de "${nome}" deste minicurso?`)) return;
+    this.removendo = idParticipante;
+    this.erroMsg = '';
+    this.sucessoMsg = '';
+    this.minicursoService.removerInscricao(this.minicursoId, idParticipante).subscribe({
+      next: (resp: any) => {
+        this.removendo = null;
+        this.sucessoMsg = resp?.msg || 'Inscrição removida com sucesso.';
+        this.carregar();
+      },
+      error: (err: any) => {
+        this.removendo = null;
+        this.erroMsg = err?.error?.msg || 'Erro ao remover inscrição.';
       }
     });
   }

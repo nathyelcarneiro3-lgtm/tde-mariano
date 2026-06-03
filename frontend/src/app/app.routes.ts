@@ -8,39 +8,52 @@ import { AdminEventosComponent } from './components/admin-eventos/admin-eventos'
 import { CadastroEventoComponent } from './components/cadastro-evento/cadastro-evento';
 import { ListaInscritosComponent } from './components/lista-inscritos/lista-inscritos';
 
-// Novos componentes (Req 2 e 3)
+// Req 2, 3, 5
 import { EditarPerfilComponent } from './components/editar-perfil/editar-perfil';
 import { ListaUsuariosComponent } from './components/lista-usuarios/lista-usuarios';
 
 // Req 9 - inscrição em evento
 import { InscricaoEventoComponent } from './components/inscricao-evento/inscricao-evento';
 
+// Req 14–22, 24 - minicursos
+import { CadastroMinicursoComponent } from './components/cadastro-minicurso/cadastro-minicurso';
+import { ListaMinicursosComponent } from './components/lista-minicursos/lista-minicursos';
+import { ListaInscritosMinicursoComponent } from './components/lista-inscritos-minicurso/lista-inscritos-minicurso';
+
 export const routes: Routes = [
-  // Rota inicial
   { path: '', redirectTo: '/home', pathMatch: 'full' },
 
-  // Rotas públicas
+  // Públicas
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
   { path: 'registo', component: CadastroUsuarioComponent },
 
-  // Rotas de usuário
+  // Usuário
   { path: 'editar-perfil', component: EditarPerfilComponent },
 
-  // Rotas de administração
+  // Eventos (admin)
   { path: 'admin', component: AdminEventosComponent },
   { path: 'cadastro-evento', component: CadastroEventoComponent },
   { path: 'cadastro-evento/:id', component: CadastroEventoComponent },
 
-  // Req 12 - listar participantes de um evento (admin)
+  // Req 12 - inscritos por evento
   { path: 'lista-inscritos/:id', component: ListaInscritosComponent },
 
-  // Req 3 e 5 - gerenciar usuários (somente admin)
+  // Req 3, 5 - usuários (admin)
   { path: 'lista-usuarios', component: ListaUsuariosComponent },
 
-  // Req 9 - inscrição em evento (usuário logado)
+  // Req 9 - inscrição em evento
   { path: 'inscricao-evento/:id', component: InscricaoEventoComponent },
 
-  // Fallback
+  // Req 14 - cadastrar/editar minicurso (admin)
+  { path: 'cadastro-minicurso', component: CadastroMinicursoComponent },
+  { path: 'cadastro-minicurso/:id', component: CadastroMinicursoComponent },
+
+  // Req 24 - listar todos os minicursos
+  { path: 'lista-minicursos', component: ListaMinicursosComponent },
+
+  // Req 22 - listar inscritos de um minicurso
+  { path: 'inscritos-minicurso/:id', component: ListaInscritosMinicursoComponent },
+
   { path: '**', redirectTo: '/home' }
 ];
