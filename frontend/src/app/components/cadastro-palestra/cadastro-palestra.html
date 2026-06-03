@@ -1,93 +1,194 @@
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="mb-4 text-center">
-        <h2 class="fw-bold mb-2">{{ isEdit ? 'Editar Palestra' : 'Nova Palestra' }}</h2>
-        <p class="text-muted">Preencha os dados da palestra e do palestrante.</p>
-      </div>
+<div class="cp-wrapper">
+  <div class="cp-container">
 
-      <div *ngIf="carregando && isEdit" class="text-center py-5">
-        <div class="spinner-border text-primary" role="status"></div>
-        <p class="text-muted mt-2">Carregando...</p>
-      </div>
-
-      <div *ngIf="erroMsg" class="alert alert-danger rounded-3 mb-3">
-        <strong>{{ erroMsg }}</strong>
-      </div>
-
-      <div class="card shadow-sm border-0" style="border-radius:16px" *ngIf="!carregando || !isEdit">
-        <div class="card-body p-4 p-md-5">
-          <form (ngSubmit)="f.form.valid && salvar()" #f="ngForm">
-
-            <div class="mb-4">
-              <label class="form-label fw-bold text-secondary small">Evento <span class="text-danger">*</span></label>
-              <select class="form-select form-select-lg bg-light border-0"
-                      [(ngModel)]="palestra.id_evento" name="id_evento" required>
-                <option [ngValue]="null" disabled>Selecione um evento</option>
-                <option *ngFor="let e of eventos" [value]="e.id">{{ e.nome }}</option>
-              </select>
-            </div>
-
-            <div class="mb-4">
-              <label class="form-label fw-bold text-secondary small">Nome da Palestra <span class="text-danger">*</span></label>
-              <input type="text" class="form-control form-control-lg bg-light border-0"
-                     [(ngModel)]="palestra.nome" name="nome" required
-                     placeholder="Ex: Inteligência Artificial na Prática">
-            </div>
-
-            <div class="mb-4">
-              <label class="form-label fw-bold text-secondary small">Descrição <span class="text-danger">*</span></label>
-              <textarea rows="3" class="form-control bg-light border-0"
-                        [(ngModel)]="palestra.descricao" name="descricao" required></textarea>
-            </div>
-
-            <h5 class="fw-bold mt-4 mb-3">Dados do Palestrante</h5>
-
-            <div class="mb-3">
-              <label class="form-label fw-bold text-secondary small">Nome do Palestrante <span class="text-danger">*</span></label>
-              <input type="text" class="form-control form-control-lg bg-light border-0"
-                     [(ngModel)]="palestra.nome_palestrante" name="nome_palestrante" required>
-            </div>
-
-            <div class="mb-4">
-              <label class="form-label fw-bold text-secondary small">Mini Currículo <span class="text-danger">*</span></label>
-              <textarea rows="2" class="form-control bg-light border-0"
-                        [(ngModel)]="palestra.minicurriculo_palestrante" name="minicurriculo_palestrante" required
-                        placeholder="Breve descrição do palestrante..."></textarea>
-            </div>
-
-            <h5 class="fw-bold mt-4 mb-3">Data e Horário</h5>
-
-            <div class="row mb-5">
-              <div class="col-md-4 mb-3 mb-md-0">
-                <label class="form-label fw-bold text-secondary small">Data <span class="text-danger">*</span></label>
-                <input type="date" class="form-control form-control-lg bg-light border-0"
-                       [(ngModel)]="palestra.dt_palestra" name="dt_palestra" required>
-              </div>
-              <div class="col-md-4 mb-3 mb-md-0">
-                <label class="form-label fw-bold text-secondary small">Início <span class="text-danger">*</span></label>
-                <input type="time" class="form-control form-control-lg bg-light border-0"
-                       [(ngModel)]="palestra.horario_inicio_palestra" name="horario_inicio" required>
-              </div>
-              <div class="col-md-4">
-                <label class="form-label fw-bold text-secondary small">Fim <span class="text-danger">*</span></label>
-                <input type="time" class="form-control form-control-lg bg-light border-0"
-                       [(ngModel)]="palestra.horario_fim_palestra" name="horario_fim" required>
-              </div>
-            </div>
-
-            <hr class="mb-4">
-            <div class="d-flex justify-content-end gap-3">
-              <button type="button" routerLink="/lista-palestras" class="btn btn-light fw-bold px-4">Cancelar</button>
-              <button type="submit" class="btn btn-primary fw-bold px-4" [disabled]="f.invalid || carregando">
-                <span *ngIf="carregando" class="spinner-border spinner-border-sm me-1" role="status"></span>
-                {{ isEdit ? 'Guardar' : 'Cadastrar' }}
-              </button>
-            </div>
-
-          </form>
-        </div>
+    <!-- Cabeçalho -->
+    <div class="cp-header">
+      <button class="cp-btn-back" (click)="cancelar()">← Voltar</button>
+      <div class="cp-header-text">
+        <h2 class="cp-titulo">
+          <span>🎤</span>
+          {{ isEdit ? 'Editar Palestra' : 'Nova Palestra' }}
+        </h2>
+        <p class="cp-subtitulo">
+          {{ isEdit ? 'Atualize as informações da palestra.' : 'Preencha os dados para cadastrar uma nova palestra.' }}
+        </p>
       </div>
     </div>
+
+    <!-- Loading (modo edição) -->
+    <div *ngIf="carregando && isEdit" class="cp-loading">
+      <div class="spinner-border cp-spinner" role="status"></div>
+      <p>Carregando dados da palestra...</p>
+    </div>
+
+    <!-- Alerta de erro -->
+    <div *ngIf="erroMsg" class="cp-alert-erro">
+      ⚠️ {{ erroMsg }}
+    </div>
+
+    <!-- Formulário -->
+    <form
+      *ngIf="!carregando || !isEdit"
+      (ngSubmit)="f.form.valid && salvar()"
+      #f="ngForm"
+      class="cp-form"
+      novalidate
+    >
+
+      <!-- SEÇÃO 1: Evento e identificação -->
+      <div class="cp-section">
+        <div class="cp-section-label">
+          <span class="cp-section-num">01</span>
+          <span>Vinculação ao Evento</span>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label" for="id_evento">
+            Evento <span class="cp-obrig">*</span>
+          </label>
+          <select
+            id="id_evento"
+            class="cp-select"
+            [(ngModel)]="palestra.id_evento"
+            name="id_evento"
+            required
+          >
+            <option [ngValue]="null" disabled>Selecione o evento ao qual a palestra pertence</option>
+            <option *ngFor="let e of eventos" [value]="e.id">{{ e.nome }}</option>
+          </select>
+          <span class="cp-hint" *ngIf="eventos.length === 0">Nenhum evento disponível no momento.</span>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label" for="nome">
+            Nome da Palestra <span class="cp-obrig">*</span>
+          </label>
+          <input
+            id="nome"
+            type="text"
+            class="cp-input"
+            [(ngModel)]="palestra.nome"
+            name="nome"
+            required
+            placeholder="Ex: Inteligência Artificial na Prática"
+          />
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label" for="descricao">
+            Descrição <span class="cp-obrig">*</span>
+          </label>
+          <textarea
+            id="descricao"
+            rows="3"
+            class="cp-textarea"
+            [(ngModel)]="palestra.descricao"
+            name="descricao"
+            required
+            placeholder="Descreva brevemente o conteúdo da palestra..."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 2: Dados do palestrante -->
+      <div class="cp-section">
+        <div class="cp-section-label">
+          <span class="cp-section-num">02</span>
+          <span>Dados do Palestrante</span>
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label" for="nome_palestrante">
+            Nome do Palestrante <span class="cp-obrig">*</span>
+          </label>
+          <input
+            id="nome_palestrante"
+            type="text"
+            class="cp-input"
+            [(ngModel)]="palestra.nome_palestrante"
+            name="nome_palestrante"
+            required
+            placeholder="Nome completo do palestrante"
+          />
+        </div>
+
+        <div class="cp-field">
+          <label class="cp-label" for="minicurriculo">
+            Mini Currículo <span class="cp-obrig">*</span>
+          </label>
+          <textarea
+            id="minicurriculo"
+            rows="3"
+            class="cp-textarea"
+            [(ngModel)]="palestra.minicurriculo_palestrante"
+            name="minicurriculo_palestrante"
+            required
+            placeholder="Breve descrição da trajetória e experiência do palestrante..."
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- SEÇÃO 3: Data e horário -->
+      <div class="cp-section">
+        <div class="cp-section-label">
+          <span class="cp-section-num">03</span>
+          <span>Data e Horário</span>
+        </div>
+
+        <div class="cp-row-3">
+          <div class="cp-field">
+            <label class="cp-label" for="dt_palestra">
+              Data <span class="cp-obrig">*</span>
+            </label>
+            <input
+              id="dt_palestra"
+              type="date"
+              class="cp-input"
+              [(ngModel)]="palestra.dt_palestra"
+              name="dt_palestra"
+              required
+            />
+          </div>
+          <div class="cp-field">
+            <label class="cp-label" for="horario_inicio">
+              Horário de Início <span class="cp-obrig">*</span>
+            </label>
+            <input
+              id="horario_inicio"
+              type="time"
+              class="cp-input"
+              [(ngModel)]="palestra.horario_inicio_palestra"
+              name="horario_inicio_palestra"
+              required
+            />
+          </div>
+          <div class="cp-field">
+            <label class="cp-label" for="horario_fim">
+              Horário de Fim <span class="cp-obrig">*</span>
+            </label>
+            <input
+              id="horario_fim"
+              type="time"
+              class="cp-input"
+              [(ngModel)]="palestra.horario_fim_palestra"
+              name="horario_fim_palestra"
+              required
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Rodapé do formulário -->
+      <div class="cp-footer">
+        <button type="button" class="cp-btn-cancelar" (click)="cancelar()" [disabled]="salvando">
+          Cancelar
+        </button>
+        <button type="submit" class="cp-btn-salvar" [disabled]="f.invalid || salvando">
+          <span *ngIf="salvando" class="spinner-border spinner-border-sm me-2" role="status"></span>
+          {{ salvando ? 'Salvando...' : (isEdit ? 'Salvar Alterações' : 'Cadastrar Palestra') }}
+        </button>
+      </div>
+
+    </form>
   </div>
 </div>

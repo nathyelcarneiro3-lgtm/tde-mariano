@@ -23,6 +23,11 @@
           <a class="nav-link text-info fw-bold" routerLink="/lista-usuarios" routerLinkActive="active">👥 Usuários</a>
         </li>
 
+        <!-- Palestras: só admin -->
+        <li class="nav-item me-2" *ngIf="usuarioEAdmin()">
+          <a class="nav-link" routerLink="/lista-palestras" routerLinkActive="active">🎤 Palestras</a>
+        </li>
+
         <div *ngIf="!usuarioEstaLogado()">
           <a routerLink="/login" class="btn btn-outline-primary">Fazer Login</a>
         </div>

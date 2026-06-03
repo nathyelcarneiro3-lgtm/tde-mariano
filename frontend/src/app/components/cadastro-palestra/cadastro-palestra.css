@@ -1,0 +1,255 @@
+/* ============================================
+   CADASTRO PALESTRA — Tema Dark/Dourado do Projeto
+   ============================================ */
+
+.cp-wrapper {
+  padding: 2rem 0;
+}
+
+.cp-container {
+  max-width: 740px;
+  margin: 0 auto;
+}
+
+/* ----- Cabeçalho ----- */
+.cp-header {
+  margin-bottom: 2rem;
+}
+
+.cp-btn-back {
+  background: transparent;
+  border: none;
+  color: var(--cor-texto-secundario, #94a3b8);
+  font-size: 0.88rem;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 0.9rem;
+  transition: color 0.2s;
+}
+.cp-btn-back:hover {
+  color: var(--cor-destaque-dourado, #d4af37);
+}
+
+.cp-titulo {
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: var(--cor-texto-principal, #f8fafc);
+  margin: 0 0 0.3rem;
+}
+.cp-titulo span {
+  margin-right: 0.4rem;
+}
+
+.cp-subtitulo {
+  color: var(--cor-texto-secundario, #94a3b8);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ----- Loading ----- */
+.cp-loading {
+  text-align: center;
+  padding: 4rem 0;
+  color: var(--cor-texto-secundario, #94a3b8);
+}
+.cp-spinner {
+  color: var(--cor-destaque-dourado, #d4af37);
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+/* ----- Alerta de erro ----- */
+.cp-alert-erro {
+  background-color: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: 10px;
+  color: #fca5a5;
+  padding: 0.9rem 1.2rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* ----- Formulário ----- */
+.cp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ----- Seções ----- */
+.cp-section {
+  background-color: var(--cor-fundo-secundario, #1e293b);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 1.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.cp-section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cor-destaque-dourado, #d4af37);
+  margin-bottom: 1.4rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.18);
+}
+
+.cp-section-num {
+  background-color: rgba(212, 175, 55, 0.12);
+  color: var(--cor-destaque-dourado, #d4af37);
+  border-radius: 5px;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+/* ----- Campos ----- */
+.cp-field {
+  margin-bottom: 1.2rem;
+}
+.cp-field:last-child {
+  margin-bottom: 0;
+}
+
+.cp-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--cor-texto-secundario, #94a3b8);
+  margin-bottom: 0.45rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cp-obrig {
+  color: #f87171;
+  margin-left: 2px;
+}
+
+.cp-input,
+.cp-select,
+.cp-textarea {
+  width: 100%;
+  background-color: #0b1120;
+  border: 1px solid #334155;
+  border-radius: 9px;
+  color: var(--cor-texto-principal, #f8fafc);
+  padding: 0.65rem 0.9rem;
+  font-size: 0.93rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  appearance: auto;
+}
+
+.cp-input:focus,
+.cp-select:focus,
+.cp-textarea:focus {
+  outline: none;
+  border-color: var(--cor-destaque-dourado, #d4af37);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+}
+
+.cp-input::placeholder,
+.cp-textarea::placeholder {
+  color: #475569;
+}
+
+.cp-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.cp-select option {
+  background-color: #0b1120;
+  color: #f8fafc;
+}
+
+.cp-hint {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: #f59e0b;
+}
+
+/* ----- Row de 3 colunas (data + horários) ----- */
+.cp-row-3 {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 1rem;
+}
+
+/* ----- Rodapé do formulário ----- */
+.cp-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.cp-btn-cancelar {
+  background: transparent;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 9px;
+  color: var(--cor-texto-secundario, #94a3b8);
+  padding: 0.65rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.cp-btn-cancelar:hover:not(:disabled) {
+  border-color: var(--cor-destaque-dourado, #d4af37);
+  color: var(--cor-destaque-dourado, #d4af37);
+}
+.cp-btn-cancelar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cp-btn-salvar {
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--cor-destaque-dourado, #d4af37);
+  color: #000;
+  border: none;
+  border-radius: 9px;
+  padding: 0.65rem 1.75rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.15s, box-shadow 0.2s;
+}
+.cp-btn-salvar:hover:not(:disabled) {
+  background-color: var(--cor-destaque-hover, #b8962e);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
+}
+.cp-btn-salvar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ----- Responsividade ----- */
+@media (max-width: 640px) {
+  .cp-row-3 {
+    grid-template-columns: 1fr;
+  }
+  .cp-section {
+    padding: 1.25rem;
+  }
+  .cp-footer {
+    flex-direction: column-reverse;
+  }
+  .cp-btn-cancelar,
+  .cp-btn-salvar {
+    width: 100%;
+    justify-content: center;
+  }
+}

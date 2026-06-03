@@ -9,7 +9,8 @@ import { EventoService } from '../../services/evento';
   selector: 'app-cadastro-palestra',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './cadastro-palestra.html'
+  templateUrl: './cadastro-palestra.html',
+  styleUrls: ['./cadastro-palestra.css']
 })
 export class CadastroPalestraComponent implements OnInit {
   palestra: any = {
@@ -27,6 +28,7 @@ export class CadastroPalestraComponent implements OnInit {
   isEdit = false;
   palestraId: number | null = null;
   carregando = false;
+  salvando = false;
   erroMsg = '';
 
   constructor(
@@ -55,18 +57,18 @@ export class CadastroPalestraComponent implements OnInit {
     }
   }
 
-  // "2026-06-10 00:00:00" → "2026-06-10" (para o <input type="date">)
+  // "2026-06-10 00:00:00" ou "10/06/2026" → "2026-06-10" (para <input type="date">)
   private paraInput(v: string): string {
     if (!v) return '';
     const s = v.split('T')[0].split(' ')[0].trim();
     if (s.includes('/')) {
       const [d, m, a] = s.split('/');
-      return `${a}-${m}-${d}`;
+      return `${a}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
     }
     return s;
   }
 
-  // "2026-06-10" → "10/06/2026" (que o backend exige)
+  // "2026-06-10" → "10/06/2026" (exigido pelo backend)
   private paraEnvio(v: string): string {
     if (!v) return '';
     const s = v.split(' ')[0].trim();
@@ -102,9 +104,8 @@ export class CadastroPalestraComponent implements OnInit {
 
   salvar(): void {
     this.erroMsg = '';
-    this.carregando = true;
+    this.salvando = true;
 
-    // Converte YYYY-MM-DD → DD/MM/YYYY antes de enviar ao backend
     const payload = {
       ...this.palestra,
       dt_palestra: this.paraEnvio(this.palestra.dt_palestra)
@@ -116,13 +117,18 @@ export class CadastroPalestraComponent implements OnInit {
 
     acao.subscribe({
       next: () => {
+        this.salvando = false;
         alert(this.isEdit ? 'Palestra atualizada com sucesso!' : 'Palestra cadastrada com sucesso!');
         this.router.navigate(['/lista-palestras']);
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao salvar palestra.';
-        this.carregando = false;
+        this.salvando = false;
       }
     });
+  }
+
+  cancelar(): void {
+    this.router.navigate(['/lista-palestras']);
   }
 }

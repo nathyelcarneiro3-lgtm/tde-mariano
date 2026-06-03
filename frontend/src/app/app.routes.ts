@@ -8,6 +8,9 @@ import { AdminEventosComponent } from './components/admin-eventos/admin-eventos'
 import { CadastroEventoComponent } from './components/cadastro-evento/cadastro-evento';
 import { ListaInscritosComponent } from './components/lista-inscritos/lista-inscritos';
 
+import { ListaPalestrasComponent }   from './components/lista-palestras/lista-palestras';
+import { CadastroPalestraComponent } from './components/cadastro-palestra/cadastro-palestra';
+
 // Req 2, 3, 5
 import { EditarPerfilComponent } from './components/editar-perfil/editar-perfil';
 import { ListaUsuariosComponent } from './components/lista-usuarios/lista-usuarios';
@@ -54,6 +57,12 @@ export const routes: Routes = [
 
   // Req 22 - listar inscritos de um minicurso
   { path: 'inscritos-minicurso/:id', component: ListaInscritosMinicursoComponent },
+
+  { path: 'lista-palestras', component: ListaPalestrasComponent },
+
+  // Req 14/15 - cadastrar / editar palestra (admin)
+  { path: 'cadastro-palestra',      component: CadastroPalestraComponent },
+  { path: 'cadastro-palestra/:id',  component: CadastroPalestraComponent },
 
   { path: '**', redirectTo: '/home' }
 ];
