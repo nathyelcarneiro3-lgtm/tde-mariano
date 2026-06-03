@@ -1,15 +1,22 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
 export class EventoService {
   private apiUrl = 'http://127.0.0.1:5000/api/v1/evento';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
+  // O backend usa jwtDecode() direto no token — sem "Bearer "
   private getHeaders(): HttpHeaders {
-    const token = localStorage.getItem('token') || '';
+    const token = isPlatformBrowser(this.platformId)
+      ? localStorage.getItem('token') || ''
+      : '';
     return new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': token
@@ -21,20 +28,50 @@ export class EventoService {
   }
 
   cadastrar(evento: any): Observable<any> {
-    return this.http.post(this.apiUrl, evento, { headers: this.getHeaders() });
+    // Garante que apenas os campos esperados pelo backend são enviados
+    const payload = {
+      nome: evento.nome,
+      descricao: evento.descricao,
+      dt_inicio: evento.dt_inicio,
+      dt_fim: evento.dt_fim,
+      dt_limite_inscricao: evento.dt_limite_inscricao,
+      numero_vagas: evento.numero_vagas,
+      cpf_responsavel: evento.cpf_responsavel,
+      nome_responsavel: evento.nome_responsavel,
+      email_responsavel: evento.email_responsavel
+    };
+    return this.http.post(this.apiUrl, payload, { headers: this.getHeaders() });
   }
 
   excluir(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // FIX: adicionado token no header (antes estava sem Authorization)
   obterPorId(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // FIX: adicionado token no header (antes estava sem Authorization)
+  // FIX CRÍTICO: o body do PUT NÃO pode conter "id"
+  // Backend faz: Evento(id, **request.json) — se "id" vier no JSON, TypeError
   atualizar(id: number, evento: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, evento, { headers: this.getHeaders() });
+    const payload = {
+      nome: evento.nome,
+      descricao: evento.descricao,
+      dt_inicio: evento.dt_inicio,
+      dt_fim: evento.dt_fim,
+      dt_limite_inscricao: evento.dt_limite_inscricao,
+      numero_vagas: evento.numero_vagas,
+      cpf_responsavel: evento.cpf_responsavel,
+      nome_responsavel: evento.nome_responsavel,
+      email_responsavel: evento.email_responsavel
+    };
+    return this.http.put<any>(`${this.apiUrl}/${id}`, payload, { headers: this.getHeaders() });
+  }
+
+  obterInscritosPorEvento(idEvento: number): Observable<any> {
+    return this.http.get<any>(
+      `http://127.0.0.1:5000/api/v1/inscricao/evento/${idEvento}`,
+      { headers: this.getHeaders() }
+    );
   }
 }

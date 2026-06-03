@@ -19,20 +19,22 @@ export class LoginComponent {
   };
 
   carregando = false;
+  erroMsg = '';
 
   constructor(private usuarioService: UsuarioService, private router: Router) {}
 
   fazerLogin() {
     this.carregando = true;
+    this.erroMsg = '';
 
     this.usuarioService.logar(this.loginData).subscribe({
       next: (resposta) => {
-        // 1. Salva o token
-        localStorage.setItem('token', resposta.token_jwt);
-        // Salva o CPF já aqui para o getHeaders() funcionar na próxima chamada
+        // Salva o token JWT puro — o backend NÃO aceita "Bearer " no prefixo
+        const token = resposta.token_jwt || resposta.token || '';
+        localStorage.setItem('token', token);
         localStorage.setItem('usuarioCpf', this.loginData.cpf);
 
-        // 2. Com o token em mãos, busca os dados completos do usuário (id, nome, isAdmin)
+        // Busca dados completos do usuário para popular o localStorage
         this.usuarioService.obterPorToken().subscribe({
           next: (usuario) => {
             localStorage.setItem('usuarioId',    String(usuario.id));
@@ -45,18 +47,18 @@ export class LoginComponent {
             this.router.navigate(['/home']);
           },
           error: (err) => {
-            this.carregando = false;
-            console.error('Erro ao buscar dados do usuário:', err);
-            // Login funcionou, mas não conseguiu buscar detalhes — segue sem admin
+            // Login funcionou mas não conseguiu buscar detalhes — continua sem admin
             localStorage.setItem('usuarioAdmin', '0');
+            this.carregando = false;
+            console.warn('Aviso: não foi possível buscar dados do usuário após login.', err);
             this.router.navigate(['/home']);
           }
         });
       },
       error: (erro) => {
         this.carregando = false;
+        this.erroMsg = 'CPF ou senha inválidos. Verifique suas credenciais.';
         console.error('Erro de Login:', erro);
-        alert('CPF ou senha inválidos.');
       }
     });
   }

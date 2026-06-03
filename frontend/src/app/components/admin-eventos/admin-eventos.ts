@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router'; 
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { RouterLink, Router } from '@angular/router';
 import { EventoService } from '../../services/evento';
 
 @Component({
@@ -12,46 +12,72 @@ import { EventoService } from '../../services/evento';
 })
 export class AdminEventosComponent implements OnInit {
   eventos: any[] = [];
-  adminResponsavel: string = 'nathyel';
+  carregando = false;
+  erroMsg = '';
 
   constructor(
     private eventoService: EventoService,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
     this.carregarEventos();
   }
 
-carregarEventos(): void {
-    console.log('--- Iniciando busca de eventos ---'); // Adicionado log
+  carregarEventos(): void {
+    this.carregando = true;
+    this.erroMsg = '';
+
     this.eventoService.obterTodos().subscribe({
       next: (dados: any) => {
-         console.log('Dados recebidos do banco:', dados); // Isso vai confirmar se a lista vem vazia ou cheia
-         this.eventos = dados;
-         console.log('Lista de eventos no Angular:', this.eventos);
+        // Backend retorna array direto: [{id, nome, dt_inicio, dt_fim, ...}, ...]
+        const lista = Array.isArray(dados) ? dados : (dados?.eventos ?? dados?.data ?? []);
+        this.eventos = lista.map((e: any) => ({
+          ...e,
+          // Formata datas para exibição (o banco retorna strings como "2026-05-01")
+          dt_inicio_fmt: this.formatarData(e.dt_inicio),
+          dt_fim_fmt:    this.formatarData(e.dt_fim)
+        }));
+        this.carregando = false;
       },
       error: (erro: any) => {
-        console.error('Erro na requisição:', erro);
+        this.carregando = false;
+        if (erro.status === 401 || erro.status === 403) {
+          this.erroMsg = 'Sessão expirada. Faça login novamente.';
+        } else if (erro.status === 0) {
+          this.erroMsg = 'Não foi possível conectar ao servidor. Verifique se o backend está rodando.';
+        } else {
+          this.erroMsg = erro?.error?.msg || 'Erro ao carregar eventos.';
+        }
+        console.error('Erro ao carregar eventos:', erro);
       }
     });
   }
 
- excluirEvento(id: number): void {
-  if (confirm('Tem certeza que deseja excluir?')) {
+  private formatarData(valor: string): string {
+    if (!valor) return '—';
+    const s = valor.split('T')[0].trim();
+    if (!s) return '—';
+    const [ano, mes, dia] = s.split('-');
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  excluirEvento(id: number): void {
+    if (!confirm('Tem certeza que deseja excluir este evento?')) return;
+
     this.eventoService.excluir(id).subscribe({
       next: () => {
-        // Isso é o que faz a lista aparecer de novo imediatamente após apagar
-        this.carregarEventos(); 
         alert('Evento excluído com sucesso!');
+        this.carregarEventos();
       },
       error: (erro: any) => {
+        const msg = erro?.error?.msg || 'Erro ao excluir o evento.';
+        alert(msg);
         console.error('Erro ao excluir:', erro);
-        alert('Erro ao excluir o evento.');
       }
     });
   }
-}
 
   editarEvento(id: number): void {
     this.router.navigate(['/cadastro-evento', id]);

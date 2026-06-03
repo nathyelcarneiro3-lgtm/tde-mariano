@@ -1,13 +1,13 @@
 <div class="container py-5">
   <div class="row justify-content-center">
     <div class="col-lg-8 col-xl-6">
-      
+
       <div class="mb-4 text-center">
         <h2 class="fw-bold text-dark mb-2">{{ isEdit ? 'Editar Evento' : 'Criar Novo Evento' }}</h2>
         <p class="text-muted">Preencha as informações do evento e do responsável.</p>
       </div>
 
-      <!-- Spinner enquanto carrega dados para edição -->
+      <!-- Spinner ao carregar dados para edição -->
       <div *ngIf="carregando && isEdit" class="text-center py-5">
         <div class="spinner-border text-primary" role="status">
           <span class="visually-hidden">Carregando...</span>
@@ -15,42 +15,51 @@
         <p class="text-muted mt-2">Carregando dados do evento...</p>
       </div>
 
+      <!-- Erro -->
+      <div *ngIf="erroMsg" class="alert alert-danger rounded-3 mb-3">
+        <strong>{{ erroMsg }}</strong>
+      </div>
+
       <div class="card shadow-sm border-0" style="border-radius: 16px;" *ngIf="!carregando || !isEdit">
         <div class="card-body p-4 p-md-5">
-          
+
           <form (ngSubmit)="formEvento.form.valid && salvar()" #formEvento="ngForm">
-            
+
             <div class="mb-4">
               <label class="form-label fw-bold text-secondary small">Nome do Evento <span class="text-danger">*</span></label>
-              <input type="text" class="form-control form-control-lg bg-light border-0" 
-                     [(ngModel)]="evento.nome" name="nome" required>
+              <input type="text" class="form-control form-control-lg bg-light border-0"
+                     [(ngModel)]="evento.nome" name="nome" required
+                     placeholder="Ex: Semana de Tecnologia 2026">
             </div>
 
             <div class="mb-4">
-              <label class="form-label fw-bold text-secondary small">Descrição</label>
-              <textarea rows="3" class="form-control bg-light border-0" 
-                        [(ngModel)]="evento.descricao" name="descricao"></textarea>
+              <label class="form-label fw-bold text-secondary small">Descrição <span class="text-danger">*</span></label>
+              <textarea rows="3" class="form-control bg-light border-0"
+                        [(ngModel)]="evento.descricao" name="descricao" required
+                        placeholder="Descreva o evento..."></textarea>
             </div>
 
             <h5 class="fw-bold text-dark mt-4 mb-3">Dados do Responsável</h5>
-            
+
             <div class="mb-3">
-              <label class="form-label fw-bold text-secondary small">Nome Completo <span class="text-danger">*</span></label>
-              <input type="text" class="form-control form-control-lg bg-light border-0" 
-                     [(ngModel)]="evento.nome_responsavel" name="nome_responsavel" required>
+              <label class="form-label fw-bold text-secondary small">Nome do Responsável <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-lg bg-light border-0"
+                     [(ngModel)]="evento.nome_responsavel" name="nome_responsavel" required
+                     placeholder="Nome completo">
             </div>
 
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
-                <label class="form-label fw-bold text-secondary small">CPF <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-lg bg-light border-0" 
-                       [(ngModel)]="evento.cpf_responsavel" name="cpf_responsavel" required>
+                <label class="form-label fw-bold text-secondary small">CPF do Responsável <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-lg bg-light border-0"
+                       [(ngModel)]="evento.cpf_responsavel" name="cpf_responsavel" required
+                       placeholder="000.000.000-00">
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold text-secondary small">E-mail <span class="text-danger">*</span></label>
-                <input type="email" class="form-control form-control-lg bg-light border-0" 
-                       [(ngModel)]="evento.email_responsavel" name="email_responsavel" 
-                       pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required>
+                <label class="form-label fw-bold text-secondary small">E-mail do Responsável <span class="text-danger">*</span></label>
+                <input type="email" class="form-control form-control-lg bg-light border-0"
+                       [(ngModel)]="evento.email_responsavel" name="email_responsavel" required
+                       placeholder="email@exemplo.com">
               </div>
             </div>
 
@@ -58,29 +67,28 @@
 
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
-                <!-- FIX: [(ngModel)] usa dt_inicio (igual ao campo do backend) -->
-                <label class="form-label fw-bold text-secondary small">Início (Data) <span class="text-danger">*</span></label>
-                <input type="date" class="form-control form-control-lg bg-light border-0" 
+                <label class="form-label fw-bold text-secondary small">Data de Início <span class="text-danger">*</span></label>
+                <input type="date" class="form-control form-control-lg bg-light border-0"
                        [(ngModel)]="evento.dt_inicio" name="dt_inicio" required>
               </div>
               <div class="col-md-6">
-                <!-- FIX: [(ngModel)] usa dt_fim (igual ao campo do backend) -->
-                <label class="form-label fw-bold text-secondary small">Fim (Data) <span class="text-danger">*</span></label>
-                <input type="date" class="form-control form-control-lg bg-light border-0" 
+                <label class="form-label fw-bold text-secondary small">Data de Fim <span class="text-danger">*</span></label>
+                <input type="date" class="form-control form-control-lg bg-light border-0"
                        [(ngModel)]="evento.dt_fim" name="dt_fim" required>
               </div>
             </div>
 
             <div class="row mb-5">
               <div class="col-md-6 mb-3 mb-md-0">
-                <label class="form-label fw-bold text-secondary small">Fim das Inscrições <span class="text-danger">*</span></label>
-                <input type="date" class="form-control form-control-lg bg-light border-0" 
+                <label class="form-label fw-bold text-secondary small">Limite de Inscrição <span class="text-danger">*</span></label>
+                <input type="date" class="form-control form-control-lg bg-light border-0"
                        [(ngModel)]="evento.dt_limite_inscricao" name="dt_limite_inscricao" required>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold text-secondary small">Número de Vagas</label>
-                <input type="number" class="form-control form-control-lg bg-light border-0" 
-                       [(ngModel)]="evento.numero_vagas" name="numero_vagas" min="1">
+                <label class="form-label fw-bold text-secondary small">Número de Vagas <span class="text-danger">*</span></label>
+                <input type="number" class="form-control form-control-lg bg-light border-0"
+                       [(ngModel)]="evento.numero_vagas" name="numero_vagas" required min="1"
+                       placeholder="Ex: 100">
               </div>
             </div>
 
@@ -90,8 +98,8 @@
               <button type="button" routerLink="/admin" class="btn btn-light fw-bold px-4">
                 Cancelar
               </button>
-              
-              <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4" 
+
+              <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4"
                       [disabled]="formEvento.invalid || carregando">
                 <span *ngIf="carregando" class="spinner-border spinner-border-sm me-1" role="status"></span>
                 {{ isEdit ? 'Guardar Alterações' : 'Salvar Evento' }}
@@ -99,7 +107,7 @@
             </div>
 
           </form>
-          
+
         </div>
       </div>
     </div>

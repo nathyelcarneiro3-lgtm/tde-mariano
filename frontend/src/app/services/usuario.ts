@@ -13,117 +13,49 @@ export class UsuarioService {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
+  // O backend usa jwtDecode(args[1]) diretamente — token puro, SEM "Bearer "
   private getToken(): string {
     if (isPlatformBrowser(this.platformId)) {
-      return localStorage.getItem('token') || '';
+      const token = localStorage.getItem('token') || '';
+      // Remove "Bearer " se por acaso veio com prefixo (compatibilidade)
+      return token.startsWith('Bearer ') ? token.slice(7) : token;
     }
     return '';
   }
 
-  private getHeaders(useBearer: boolean = false): HttpHeaders {
+  private getHeaders(): HttpHeaders {
     const token = this.getToken();
-
-    let authorization = token;
-
-    if (useBearer && token && !token.toLowerCase().startsWith('bearer ')) {
-      authorization = `Bearer ${token}`;
+    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    if (token) {
+      headers = headers.set('Authorization', token);
     }
-
-    let headers = new HttpHeaders({
-      'Content-Type': 'application/json'
-    });
-
-    if (authorization) {
-      headers = headers.set('Authorization', authorization);
-    }
-
     return headers;
   }
 
-  private getComAuth(url: string): Observable<any> {
-    return this.http.get(url, { headers: this.getHeaders(false) }).pipe(
-      catchError((err) => {
-        if (err.status === 401 || err.status === 403) {
-          return this.http.get(url, { headers: this.getHeaders(true) });
-        }
-
-        return throwError(() => err);
-      })
-    );
-  }
-
-  private postComAuth(url: string, body: any): Observable<any> {
-    return this.http.post(url, body, { headers: this.getHeaders(false) }).pipe(
-      catchError((err) => {
-        if (err.status === 401 || err.status === 403) {
-          return this.http.post(url, body, { headers: this.getHeaders(true) });
-        }
-
-        return throwError(() => err);
-      })
-    );
-  }
-
-  private putComAuth(url: string, body: any): Observable<any> {
-    return this.http.put(url, body, { headers: this.getHeaders(false) }).pipe(
-      catchError((err) => {
-        if (err.status === 401 || err.status === 403) {
-          return this.http.put(url, body, { headers: this.getHeaders(true) });
-        }
-
-        return throwError(() => err);
-      })
-    );
-  }
-
-  private deleteComAuth(url: string): Observable<any> {
-    return this.http.delete(url, { headers: this.getHeaders(false) }).pipe(
-      catchError((err) => {
-        if (err.status === 401 || err.status === 403) {
-          return this.http.delete(url, { headers: this.getHeaders(true) });
-        }
-
-        return throwError(() => err);
-      })
-    );
-  }
-
   private normalizarUsuario(usuario: any): any {
-    if (!usuario) {
-      return {};
-    }
+    if (!usuario) return {};
 
     const valorAdmin =
       usuario.administrador ??
       usuario.usuario_admin ??
       usuario.admin ??
       usuario.is_admin ??
-      usuario.e_admin ??
       0;
 
     const valorAdminTexto = String(valorAdmin).toLowerCase();
-
     const administrador =
       valorAdmin === true ||
       valorAdmin === 1 ||
       valorAdminTexto === '1' ||
-      valorAdminTexto === 'true' ||
-      valorAdminTexto === 'sim' ||
-      valorAdminTexto === 's' ||
-      valorAdminTexto === 'admin' ||
-      valorAdminTexto === 'administrador';
+      valorAdminTexto === 'true';
 
     return {
       ...usuario,
       id: Number(
-        usuario.id ??
-        usuario.id_usuario ??
-        usuario.usuario_id ??
-        usuario.codigo ??
-        0
+        usuario.id ?? usuario.id_usuario ?? usuario.usuario_id ?? 0
       ),
       cpf: usuario.cpf ?? usuario.CPF ?? '',
-      nome: usuario.nome ?? usuario.name ?? usuario.usuario_nome ?? '',
+      nome: usuario.nome ?? usuario.name ?? '',
       email: usuario.email ?? usuario.e_mail ?? '',
       administrador
     };
@@ -142,45 +74,31 @@ export class UsuarioService {
       lista = resposta.dados;
     } else if (Array.isArray(resposta?.data)) {
       lista = resposta.data;
-    } else if (Array.isArray(resposta?.resultado)) {
-      lista = resposta.resultado;
     }
 
-    return lista.map((usuario) => this.normalizarUsuario(usuario));
+    return lista.map((u) => this.normalizarUsuario(u));
   }
 
   cadastrar(usuario: any): Observable<any> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-
     const dados = {
       cpf: usuario.cpf,
       nome: usuario.nome,
       email: usuario.email,
       senha: usuario.senha
     };
-
-    return this.http.post(this.apiUrl, dados, { headers }).pipe(
-      catchError(() => {
-        return this.http.post(`${this.apiUrl}s`, dados, { headers });
-      })
-    );
+    return this.http.post(this.apiUrl, dados, { headers });
   }
 
   logar(credenciais: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/logar`, credenciais).pipe(
-      catchError(() => {
-        return this.http.post(`${this.apiUrl}s/logar`, credenciais);
-      })
-    );
+    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+    return this.http.post(`${this.apiUrl}/logar`, credenciais, { headers });
   }
 
   obterPorToken(): Observable<any> {
-    return this.getComAuth(`${this.apiUrl}/porToken`).pipe(
-      catchError(() => {
-        return this.getComAuth(`${this.apiUrl}s/porToken`);
-      }),
-      map((usuario) => this.normalizarUsuario(usuario))
-    );
+    return this.http
+      .get(`${this.apiUrl}/porToken`, { headers: this.getHeaders() })
+      .pipe(map((u) => this.normalizarUsuario(u)));
   }
 
   buscarPorToken(): Observable<any> {
@@ -188,36 +106,34 @@ export class UsuarioService {
   }
 
   listarTodos(): Observable<any[]> {
-    return this.getComAuth(this.apiUrl).pipe(
-      catchError(() => {
-        return this.getComAuth(`${this.apiUrl}s`);
-      }),
-      map((resposta) => this.normalizarListaUsuarios(resposta))
-    );
+    return this.http
+      .get(this.apiUrl, { headers: this.getHeaders() })
+      .pipe(
+        map((resposta) => this.normalizarListaUsuarios(resposta)),
+        catchError((err) => {
+          console.error('Erro ao listar usuários:', err);
+          return throwError(() => err);
+        })
+      );
   }
 
+  // FIX: senha é obrigatória no backend; se não alterar, reutiliza hash vazia (backend aceita)
   atualizar(id: number, dados: any): Observable<any> {
-    return this.putComAuth(`${this.apiUrl}/${id}`, dados).pipe(
-      catchError(() => {
-        return this.putComAuth(`${this.apiUrl}s/${id}`, dados);
-      })
-    );
+    const payload = {
+      cpf:   dados.cpf,
+      nome:  dados.nome,
+      email: dados.email,
+      senha: dados.senha || ''
+    };
+    return this.http.put(`${this.apiUrl}/${id}`, payload, { headers: this.getHeaders() });
   }
 
   remover(id: number): Observable<any> {
-    return this.deleteComAuth(`${this.apiUrl}/${id}`).pipe(
-      catchError(() => {
-        return this.deleteComAuth(`${this.apiUrl}s/${id}`);
-      })
-    );
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
   promover(id: number): Observable<any> {
-    return this.postComAuth(`${this.apiUrl}/promover/${id}`, {}).pipe(
-      catchError(() => {
-        return this.postComAuth(`${this.apiUrl}s/promover/${id}`, {});
-      })
-    );
+    return this.http.post(`${this.apiUrl}/promover/${id}`, {}, { headers: this.getHeaders() });
   }
 
   isAdmin(): boolean {
@@ -225,7 +141,6 @@ export class UsuarioService {
       const valor = localStorage.getItem('usuarioAdmin') || '';
       return valor === '1' || valor.toLowerCase() === 'true';
     }
-
     return false;
   }
 
@@ -233,7 +148,6 @@ export class UsuarioService {
     if (isPlatformBrowser(this.platformId)) {
       return Number(localStorage.getItem('usuarioId') || '0');
     }
-
     return 0;
   }
 
@@ -241,7 +155,6 @@ export class UsuarioService {
     if (isPlatformBrowser(this.platformId)) {
       return localStorage.getItem('usuarioCpf') || '';
     }
-
     return '';
   }
 }

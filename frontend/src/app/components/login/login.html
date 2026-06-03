@@ -96,8 +96,13 @@
                  placeholder="Digite sua senha" required>
         </div>
 
-        <div class="d-grid mt-5 gap-3">
-          <button type="submit" class="btn custom-btn shadow-sm">
+        <div *ngIf="erroMsg" class="alert alert-danger rounded-3 py-2 small">
+          {{ erroMsg }}
+        </div>
+
+        <div class="d-grid mt-3 gap-3">
+          <button type="submit" class="btn custom-btn shadow-sm" [disabled]="carregando">
+            <span *ngIf="carregando" class="spinner-border spinner-border-sm me-2" role="status"></span>
             Entrar no Sistema
           </button>
           <div class="text-center mt-2">
