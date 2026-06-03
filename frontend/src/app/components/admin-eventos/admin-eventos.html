@@ -30,9 +30,9 @@
         <td style="padding: 1rem;">{{ evento.local || 'Não definido' }}</td>
         <td style="padding: 1rem;" class="text-secondary small">{{ evento.descricao }}</td>
         <td style="padding: 1rem; text-align: center;">
-          <button class="btn btn-sm btn-outline-primary me-2">Editar</button>
-          <button class="btn btn-sm btn-outline-danger">Excluir</button>
-        </td>
+  <button class="btn btn-sm btn-outline-primary me-2" (click)="editarEvento(evento.id)">Editar</button>
+  <button class="btn btn-sm btn-outline-danger" (click)="excluirEvento(evento.id)">Excluir</button>
+   </td>
       </tr>
 
       <tr *ngIf="eventos.length === 0">

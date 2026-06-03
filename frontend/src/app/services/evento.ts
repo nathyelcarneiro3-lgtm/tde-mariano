@@ -8,8 +8,18 @@ export class EventoService {
 
   constructor(private http: HttpClient) {}
 
-  obterTodos(): Observable<any> {
-    return this.http.get(this.apiUrl);
+ obterTodos(): Observable<any> {
+    // 1. Pega o token salvo no navegador
+    const token = localStorage.getItem('token') || '';
+    
+    // 2. Coloca o token no cabeçalho de Autorização
+    const headers = new HttpHeaders({ 
+      'Content-Type': 'application/json',
+      'Authorization': token 
+    });
+
+    // 3. Envia o GET junto com o cabeçalho
+    return this.http.get(this.apiUrl, { headers });
   }
 
   // 👇 É ESTA A FUNÇÃO QUE O ANGULAR ESTÁ A PROCURAR 👇
@@ -22,5 +32,14 @@ export class EventoService {
     });
 
     return this.http.post(this.apiUrl, evento, { headers });
+  }
+  excluir(id: number): Observable<any> {
+    const token = localStorage.getItem('token') || '';
+    const headers = new HttpHeaders({ 
+      'Content-Type': 'application/json',
+      'Authorization': token 
+    });
+
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers });
   }
 }
