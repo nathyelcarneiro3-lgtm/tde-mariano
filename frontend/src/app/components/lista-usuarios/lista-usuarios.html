@@ -5,29 +5,33 @@
       <h2 class="fw-bold mb-0">Gerenciar Usuários</h2>
       <p class="text-muted small mb-0">Visualize, edite, promova ou remova usuários do sistema.</p>
     </div>
+
     <button class="btn btn-outline-secondary" (click)="carregarUsuarios()">
-      🔄 Atualizar
+      Atualizar
     </button>
   </div>
 
   <hr class="mb-4">
 
-  <!-- Loading -->
   <div *ngIf="carregando" class="text-center py-5">
     <div class="spinner-border text-warning" role="status"></div>
     <p class="mt-3 text-muted">Carregando usuários...</p>
   </div>
 
-  <!-- Erro com detalhe -->
   <div *ngIf="erroMsg && !carregando" class="alert alert-danger rounded-3">
-    <strong>⚠️ {{ erroMsg }}</strong>
-    <div *ngIf="erroDetalhe" class="mt-2 small opacity-75">{{ erroDetalhe }}</div>
+    <strong>{{ erroMsg }}</strong>
+
+    <div *ngIf="erroDetalhe" class="mt-2 small opacity-75">
+      {{ erroDetalhe }}
+    </div>
+
     <div class="mt-3">
-      <button class="btn btn-sm btn-outline-danger" (click)="carregarUsuarios()">Tentar novamente</button>
+      <button class="btn btn-sm btn-outline-danger" (click)="carregarUsuarios()">
+        Tentar novamente
+      </button>
     </div>
   </div>
 
-  <!-- Tabela -->
   <div class="table-responsive bg-white shadow-sm rounded border" *ngIf="!carregando && !erroMsg">
     <table class="table table-hover align-middle mb-0">
       <thead class="table-light">
@@ -39,42 +43,66 @@
           <th style="padding: 1rem; text-align: center;">Ações</th>
         </tr>
       </thead>
+
       <tbody>
         <tr *ngFor="let usuario of usuarios">
-          <td style="padding: 1rem;"><code>{{ usuario.cpf }}</code></td>
           <td style="padding: 1rem;">
-            {{ usuario.nome }}
-            <span class="badge ms-2"
-              style="background: rgba(212,175,55,0.15); color: #856404; font-size: 0.7rem;"
-              *ngIf="usuario.id === idLogado">Você</span>
+            <code>{{ usuario.cpf || 'Sem CPF' }}</code>
           </td>
-          <td style="padding: 1rem;">{{ usuario.email }}</td>
+
           <td style="padding: 1rem;">
-            <span class="badge rounded-pill px-3 py-2"
+            {{ usuario.nome || 'Sem nome' }}
+
+            <span
+              class="badge ms-2"
+              style="background: rgba(212,175,55,0.15); color: #856404; font-size: 0.7rem;"
+              *ngIf="usuario.id === idLogado">
+              Você
+            </span>
+          </td>
+
+          <td style="padding: 1rem;">
+            {{ usuario.email || 'Sem e-mail' }}
+          </td>
+
+          <td style="padding: 1rem;">
+            <span
+              class="badge rounded-pill px-3 py-2"
               [style.background]="usuario.administrador ? 'rgba(220,53,69,0.15)' : 'rgba(13,110,253,0.1)'"
               [style.color]="usuario.administrador ? '#dc3545' : '#0d6efd'">
               {{ getLabelPerfil(usuario.administrador) }}
             </span>
           </td>
-          <td style="padding: 1rem; text-align: center;">
-            <button class="btn btn-sm btn-outline-primary me-1"
-              (click)="editarUsuario(usuario.id)">✏️ Editar</button>
 
-            <button *ngIf="!usuario.administrador && usuario.id !== idLogado"
+          <td style="padding: 1rem; text-align: center;">
+            <button
+              class="btn btn-sm btn-outline-primary me-1"
+              (click)="editarUsuario(usuario.id)">
+              Editar
+            </button>
+
+            <button
+              *ngIf="!usuario.administrador && usuario.id !== idLogado"
               class="btn btn-sm btn-outline-warning me-1"
               (click)="promoverUsuario(usuario.id, usuario.nome)"
-              title="Promover a Administrador">⬆️ Promover</button>
+              title="Promover a Administrador">
+              Promover
+            </button>
 
-            <button class="btn btn-sm btn-outline-danger"
+            <button
+              class="btn btn-sm btn-outline-danger"
               (click)="removerUsuario(usuario.id, usuario.nome)"
               [disabled]="usuario.id === idLogado"
               [title]="usuario.id === idLogado ? 'Você não pode remover sua própria conta' : 'Remover usuário'">
-              🗑️ Remover</button>
+              Remover
+            </button>
           </td>
         </tr>
 
         <tr *ngIf="usuarios.length === 0">
-          <td colspan="5" class="text-center py-5 text-muted">Nenhum usuário cadastrado.</td>
+          <td colspan="5" class="text-center py-5 text-muted">
+            Nenhum usuário cadastrado.
+          </td>
         </tr>
       </tbody>
     </table>
