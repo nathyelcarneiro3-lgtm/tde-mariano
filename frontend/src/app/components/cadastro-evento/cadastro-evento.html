@@ -4,37 +4,61 @@
       
       <div class="mb-4 text-center">
         <h2 class="fw-bold text-dark mb-2">Criar Novo Evento</h2>
-        <p class="text-muted">Preencha as datas e o limite de inscrições do seu evento.</p>
+        <p class="text-muted">Preencha as informações do evento e do responsável.</p>
       </div>
 
       <div class="card shadow-sm border-0" style="border-radius: 16px;">
         <div class="card-body p-4 p-md-5">
           
-          <form (ngSubmit)="salvarEvento()">
+          <!-- Formulário -->
+          <form (ngSubmit)="formEvento.form.valid && salvarEvento()" #formEvento="ngForm">
             
             <div class="mb-4">
               <label class="form-label fw-bold text-secondary small">Nome do Evento <span class="text-danger">*</span></label>
               <input type="text" class="form-control form-control-lg bg-light border-0" 
-                     [(ngModel)]="eventoData.nome" name="nome" 
-                     placeholder="Nome oficial do evento" required>
+                     [(ngModel)]="eventoData.nome" name="nome" required>
             </div>
 
             <div class="mb-4">
               <label class="form-label fw-bold text-secondary small">Descrição</label>
               <textarea rows="3" class="form-control bg-light border-0" 
-                        [(ngModel)]="eventoData.descricao" name="descricao" 
-                        placeholder="Detalhes e objetivos..."></textarea>
+                        [(ngModel)]="eventoData.descricao" name="descricao"></textarea>
+            </div>
+
+            <h5 class="fw-bold text-dark mt-4 mb-3">Dados do Responsável</h5>
+            
+            <div class="mb-3">
+              <label class="form-label fw-bold text-secondary small">Nome Completo <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-lg bg-light border-0" 
+                     [(ngModel)]="eventoData.nome_responsavel" name="nome_responsavel" required>
             </div>
 
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
-                <label class="form-label fw-bold text-secondary small">Início (Data e Hora) <span class="text-danger">*</span></label>
-                <input type="datetime-local" class="form-control form-control-lg bg-light border-0" 
+                <label class="form-label fw-bold text-secondary small">CPF <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-lg bg-light border-0" 
+                       [(ngModel)]="eventoData.cpf_responsavel" name="cpf_responsavel" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-secondary small">E-mail <span class="text-danger">*</span></label>
+                <!-- O pattern abaixo força a digitar um email com formato válido (ex: @gmail.com) -->
+                <input type="email" class="form-control form-control-lg bg-light border-0" 
+                       [(ngModel)]="eventoData.email_responsavel" name="email_responsavel" 
+                       pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" required>
+              </div>
+            </div>
+
+            <h5 class="fw-bold text-dark mt-4 mb-3">Datas e Vagas</h5>
+
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <label class="form-label fw-bold text-secondary small">Início (Data) <span class="text-danger">*</span></label>
+                <input type="date" class="form-control form-control-lg bg-light border-0" 
                        [(ngModel)]="eventoData.dt_inicio" name="dt_inicio" required>
               </div>
               <div class="col-md-6">
-                <label class="form-label fw-bold text-secondary small">Fim (Data e Hora) <span class="text-danger">*</span></label>
-                <input type="datetime-local" class="form-control form-control-lg bg-light border-0" 
+                <label class="form-label fw-bold text-secondary small">Fim (Data) <span class="text-danger">*</span></label>
+                <input type="date" class="form-control form-control-lg bg-light border-0" 
                        [(ngModel)]="eventoData.dt_fim" name="dt_fim" required>
               </div>
             </div>
@@ -42,7 +66,7 @@
             <div class="row mb-5">
               <div class="col-md-6 mb-3 mb-md-0">
                 <label class="form-label fw-bold text-secondary small">Fim das Inscrições <span class="text-danger">*</span></label>
-                <input type="datetime-local" class="form-control form-control-lg bg-light border-0" 
+                <input type="date" class="form-control form-control-lg bg-light border-0" 
                        [(ngModel)]="eventoData.dt_limite_inscricao" name="dt_limite_inscricao" required>
               </div>
               <div class="col-md-6">
@@ -59,7 +83,9 @@
                 Cancelar
               </button>
               
-              <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4" [disabled]="carregando">
+              <!-- Botão desativado se o formulário for inválido (ex: email sem o .com) -->
+              <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4" 
+                      [disabled]="carregando || formEvento.invalid">
                 <span *ngIf="carregando" class="spinner-border spinner-border-sm me-2" role="status"></span>
                 {{ carregando ? 'A Gravar...' : 'Salvar Evento' }}
               </button>
