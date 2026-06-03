@@ -45,11 +45,37 @@ export class CadastroEventoComponent implements OnInit {
     }
   }
 
-  // Formata datas do banco (ex: "2026-05-01" ou "2026-05-01T00:00:00") para "yyyy-MM-dd"
-  private formatarData(valor: string): string {
-    if (!valor) return '';
-    return valor.split('T')[0].trim();
+  // Transforma o que vem da API para o formato "yyyy-MM-dd" que o <input type="date"> exige
+private formatarParaInput(valor: string): string {
+  if (!valor) return '';
+  
+  // Limpa espaços extras e remove qualquer parte de hora que venha após espaço ou T
+  // Transforma "2026-06-20 00:00:00" ou "2026-06-20T00:00:00" apenas em "2026-06-20"
+  let dataLimpa = valor.split('T')[0].split(' ')[0].trim();
+
+  // Caso a API retorne no formato DD/MM/AAAA, converte para AAAA-MM-DD
+  if (dataLimpa.includes('/')) {
+    const partes = dataLimpa.split('/');
+    if (partes.length === 3) {
+      return `${partes[2]}-${partes[1]}-${partes[0]}`;
+    }
   }
+
+  return dataLimpa;
+}
+
+// Transforma o formato do <input type="date"> ("yyyy-MM-dd") para o formato da sua API ("dd/mm/yyyy")
+private formatarParaEnvio(data: string): string {
+  if (!data) return '';
+  
+  // Garante que estamos pegando apenas a data limpa antes de inverter
+  const dataLimpa = data.split(' ')[0].trim();
+  const partes = dataLimpa.split('-'); 
+  
+  if (partes.length !== 3) return dataLimpa;
+  return `${partes[2]}/${partes[1]}/${partes[0]}`; // Inverte para DD/MM/AAAA
+}
+
 
   carregarEvento(): void {
     this.carregando = true;
@@ -57,13 +83,12 @@ export class CadastroEventoComponent implements OnInit {
 
     this.eventoService.obterPorId(this.eventoId!).subscribe({
       next: (res: any) => {
-        // Monta o objeto apenas com campos conhecidos — evita passar "id" acidentalmente
         this.evento = {
           nome:              res.nome              || '',
           descricao:         res.descricao         || '',
-          dt_inicio:         this.formatarData(res.dt_inicio),
-          dt_fim:            this.formatarData(res.dt_fim),
-          dt_limite_inscricao: this.formatarData(res.dt_limite_inscricao),
+          dt_inicio:         this.formatarParaInput(res.dt_inicio),
+          dt_fim:            this.formatarParaInput(res.dt_fim),
+          dt_limite_inscricao: this.formatarParaInput(res.dt_limite_inscricao),
           numero_vagas:      res.numero_vagas      ?? null,
           cpf_responsavel:   res.cpf_responsavel   || '',
           nome_responsavel:  res.nome_responsavel  || '',
@@ -83,8 +108,16 @@ export class CadastroEventoComponent implements OnInit {
     this.erroMsg = '';
     this.carregando = true;
 
+    // Cria um payload clonado aplicando a máscara DD/MM/AAAA para submeter à API
+    const payload = {
+      ...this.evento,
+      dt_inicio:           this.formatarParaEnvio(this.evento.dt_inicio),
+      dt_fim:              this.formatarParaEnvio(this.evento.dt_fim),
+      dt_limite_inscricao: this.formatarParaEnvio(this.evento.dt_limite_inscricao)
+    };
+
     if (this.isEdit) {
-      this.eventoService.atualizar(this.eventoId!, this.evento).subscribe({
+      this.eventoService.atualizar(this.eventoId!, payload).subscribe({
         next: () => {
           alert('Evento atualizado com sucesso!');
           this.router.navigate(['/admin']);
@@ -96,7 +129,7 @@ export class CadastroEventoComponent implements OnInit {
         }
       });
     } else {
-      this.eventoService.cadastrar(this.evento).subscribe({
+      this.eventoService.cadastrar(payload).subscribe({
         next: () => {
           alert('Evento criado com sucesso!');
           this.router.navigate(['/admin']);

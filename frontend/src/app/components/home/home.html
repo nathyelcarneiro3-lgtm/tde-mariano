@@ -25,7 +25,7 @@
           <strong class="text-white">📍 Local:</strong> {{ evento.local }}
         </p>
         <p class="small mb-4" style="color: var(--cor-texto-secundario);">
-          <strong class="text-white">🕒 Data:</strong> {{ evento.data | date:'dd/MM/yyyy às HH:mm' }}
+          <strong class="text-white">🕒 Data:</strong> {{ evento.dt_inicio | date:'dd/MM/yyyy HH:mm' }}
         </p>
         
         <div class="mt-auto pt-3">
