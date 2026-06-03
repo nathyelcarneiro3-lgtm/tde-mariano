@@ -42,11 +42,11 @@ export class EventoService {
 
     return this.http.delete(`${this.apiUrl}/${id}`, { headers });
   }
-  obterPorId(id: number): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${id}`);
+obterPorId(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`);
   }
 
   atualizar(id: number, evento: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, evento);
+    return this.http.put<any>(`${this.apiUrl}/${id}`, evento);
   }
 }

@@ -1,84 +1,102 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
-import { EventoService } from '../../services/evento';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { EventoService } from '../../services/evento'; // Certifique-se que o caminho está correto
 
 @Component({
   selector: 'app-cadastro-evento',
-  standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './cadastro-evento.html'
+  standalone: true, // <-- Isto faltava!
+  imports: [CommonModule, FormsModule, RouterLink], // <-- Isto faz o ngModel e o RouterLink funcionarem!
+  templateUrl: './cadastro-evento.html',
+  styleUrl: './cadastro-evento.css'
 })
-export class CadastroEventoComponent {
-  
-  eventoData: any = {
+export class CadastroEventoComponent implements OnInit {
+  evento: any = {
     nome: '',
     descricao: '',
-    dt_inicio: '',
-    dt_fim: '',
-    dt_limite_inscricao: '',
-    numero_vagas: 50,
-    nome_responsavel: '',
+    data_inicio: '',
+    data_fim: '',
+    local: '',
+    nome_responsavel: '', // Adicionado para evitar erros caso utilize no HTML
     cpf_responsavel: '',
-    email_responsavel: ''
+    email_responsavel: '',
+    dt_limite_inscricao: '',
+    numero_vagas: null
   };
 
-  carregando = false;
+  isEdit = false;
+  eventoId: number | null = null;
+  carregando = false; // Adicionado para controlar o botão de submit
 
-  constructor(private eventoService: EventoService, private router: Router) {}
+  constructor(
+    private eventoService: EventoService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
 
-  // Formata de YYYY-MM-DD (HTML) para DD/MM/YYYY (Python)
-  formatarDataParaBackend(data: string): string {
-    if (!data) return '';
-    const partes = data.split('-');
-    if (partes.length === 3) {
-      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  ngOnInit(): void {
+    // Verifica se a rota possui um parâmetro de ID
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEdit = true;
+      this.eventoId = Number(id);
+      this.carregarEvento();
     }
-    return data;
   }
 
-  salvarEvento() {
-    if (!this.eventoData.nome || !this.eventoData.dt_inicio || !this.eventoData.email_responsavel) {
-      alert('Por favor, preencha todos os campos obrigatórios corretamente.');
-      return;
-    }
-
+  carregarEvento(): void {
     this.carregando = true;
-
-    // PAYLOAD CORRIGIDO: Sem o 'id', para não dar conflito com o 'Evento(0, **request.json)' do Python
-    const payload = {
-      nome: this.eventoData.nome,
-      descricao: this.eventoData.descricao,
-      dt_inicio: this.formatarDataParaBackend(this.eventoData.dt_inicio),
-      dt_fim: this.formatarDataParaBackend(this.eventoData.dt_fim),
-      dt_limite_inscricao: this.formatarDataParaBackend(this.eventoData.dt_limite_inscricao),
-      numero_vagas: Number(this.eventoData.numero_vagas),
-      nome_responsavel: this.eventoData.nome_responsavel,
-      cpf_responsavel: String(this.eventoData.cpf_responsavel),
-      email_responsavel: this.eventoData.email_responsavel
-    };
-
-    this.eventoService.cadastrar(payload).subscribe({
-      next: (resposta: any) => {
-        this.carregando = false;
-        alert('Evento registrado com sucesso!');
-        this.router.navigate(['/admin']); 
-      },
-      error: (erro: any) => {
-        this.carregando = false;
-        console.error('Erro detalhado:', erro);
+    this.eventoService.obterPorId(this.eventoId!).subscribe({
+      next: (res: any) => {
+        this.evento = res;
         
-        let msg = '';
-        if (erro.status === 0) {
-          msg = 'O backend bloqueou a requisição ou está desligado.';
-        } else {
-          // O Python envia a recusa das datas na propriedade "msg" do erro
-          msg = erro.error?.msg || erro.message; 
+        // Formatar datas para os campos input type="date" não ficarem em branco
+        if (this.evento.data_inicio) {
+          this.evento.data_inicio = this.evento.data_inicio.split('T')[0];
         }
-        
-        alert(`Falha ao registrar!\n\nMotivo: ${msg}`);
+        if (this.evento.data_fim) {
+          this.evento.data_fim = this.evento.data_fim.split('T')[0];
+        }
+        if (this.evento.dt_limite_inscricao) {
+          this.evento.dt_limite_inscricao = this.evento.dt_limite_inscricao.split('T')[0];
+        }
+        this.carregando = false;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar evento:', err);
+        alert('Erro ao carregar dados do evento.');
+        this.carregando = false;
       }
     });
+  }
+
+  salvar(): void {
+    this.carregando = true;
+    if (this.isEdit) {
+      this.eventoService.atualizar(this.eventoId!, this.evento).subscribe({
+        next: () => {
+          alert('Evento atualizado com sucesso!');
+          this.router.navigate(['/admin-eventos']);
+        },
+        error: (err) => {
+          console.error('Erro ao atualizar evento:', err);
+          alert('Erro ao atualizar o evento.');
+          this.carregando = false;
+        }
+      });
+    } else {
+      this.eventoService.cadastrar(this.evento).subscribe({
+        next: () => {
+          alert('Evento criado com sucesso!');
+          this.router.navigate(['/admin-eventos']);
+        },
+        error: (err) => {
+          console.error('Erro ao criar evento:', err);
+          alert('Erro ao criar o evento.');
+          this.carregando = false;
+        }
+      });
+    }
   }
 }
