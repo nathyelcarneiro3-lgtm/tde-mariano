@@ -27,6 +27,7 @@ export const routes: Routes = [
   // Rotas de administração
   { path: 'admin', component: AdminEventosComponent },
   { path: 'cadastro-evento', component: CadastroEventoComponent },
+  { path: 'cadastro-evento/:id', component: CadastroEventoComponent }, // Adicione esta linha
   { path: 'lista-inscritos', component: ListaInscritosComponent },
 
   // Req 3 e 5 - gerenciar usuários (somente admin)
