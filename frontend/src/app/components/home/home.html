@@ -1,49 +1,141 @@
-<div class="py-5 mb-5 text-center rounded-4 shadow-lg" style="background: linear-gradient(135deg, #1e293b 0%, #0b1120 100%); border: 1px solid rgba(212, 175, 55, 0.15); margin-top: 20px;">
-  <div class="container py-4">
-    <div style="font-size: 3.5rem; margin-bottom: 10px;">✨</div>
-    <h1 class="display-5 fw-bold mb-3" style="color: var(--cor-destaque-dourado);">Descubra Próximos Eventos</h1>
-    <p class="lead mx-auto" style="max-width: 600px; color: var(--cor-texto-secundario);">
-      Participe nas melhores palestras e minicursos. Garanta já a sua vaga e amplie os seus conhecimentos!
+<!-- ===== HERO ===== -->
+<div class="hero mb-5">
+  <div class="text-center">
+    <span class="hero-icon">✨</span>
+    <h1 class="hero-title">Descubra Próximos Eventos</h1>
+    <p class="hero-subtitle mt-3">
+      Participe nas melhores palestras e minicursos.<br>
+      Garanta já a sua vaga e amplie os seus conhecimentos!
     </p>
-  </div>
-</div>
 
-<div class="row g-4 mb-5">
-  
-  <div class="col-md-6 col-lg-4" *ngFor="let evento of eventos">
-    <div class="card h-100 border-0" style="border-top: 3px solid var(--cor-destaque-dourado) !important;">
-      <div class="card-body p-4 d-flex flex-column">
-        
-        <div class="d-flex justify-content-between align-items-start mb-3">
-          <span class="badge px-3 py-2 rounded-pill" style="background-color: rgba(212, 175, 55, 0.15); color: var(--cor-destaque-dourado);">Aberto</span>
-          <span style="font-size: 1.5rem;">🎫</span>
-        </div>
-        
-        <h4 class="fw-bold mb-3 text-white">{{ evento.nome }}</h4>
-        
-        <p class="small mb-2" style="color: var(--cor-texto-secundario);">
-          <strong class="text-white">📍 Local:</strong> {{ evento.local }}
-        </p>
-        <p class="small mb-4" style="color: var(--cor-texto-secundario);">
-          <strong class="text-white">🕒 Data:</strong> {{ evento.dt_inicio | date:'dd/MM/yyyy HH:mm' }}
-        </p>
-        
-        <div class="mt-auto pt-3">
-          <button class="btn btn-outline-warning w-100 fw-bold"
-                  style="border-color: var(--cor-destaque-dourado); color: var(--cor-destaque-dourado); border-width: 2px;"
-                  [routerLink]="['/inscricao-evento', evento.id]">
-            Inscrever-me
-          </button>
-        </div>
+    <!-- Barra de busca -->
+    <div class="search-wrapper">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input
+          class="search-input"
+          type="text"
+          placeholder="Buscar por nome ou descrição..."
+          [(ngModel)]="termoBusca"
+          autocomplete="off"
+        />
+        <button *ngIf="termoBusca" class="search-btn-clear" (click)="limparBusca()">
+          ✕ Limpar
+        </button>
+      </div>
+      <p class="search-hint" *ngIf="termoBusca">
+        <strong style="color: var(--cor-destaque-dourado);">{{ eventosFiltrados.length }}</strong>
+        resultado(s) para "<em>{{ termoBusca }}</em>"
+      </p>
+    </div>
 
+    <!-- Stats -->
+    <div class="stats-bar" *ngIf="!termoBusca && eventos.length > 0">
+      <div class="stat-item">
+        <div class="stat-number">{{ eventos.length }}</div>
+        <div class="stat-label">Eventos</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color:#63b3ed">∞</div>
+        <div class="stat-label">Minicursos</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" style="color:#6ee7b7">Free</div>
+        <div class="stat-label">Acesso</div>
       </div>
     </div>
   </div>
+</div>
 
-  <div class="col-12 text-center py-5" *ngIf="!eventos || eventos.length === 0">
-    <div style="font-size: 4rem; opacity: 0.2; margin-bottom: 20px;">🏜️</div>
-    <h3 style="color: var(--cor-texto-secundario);">Ainda não existem eventos publicados.</h3>
-    <p style="color: #475569;">Fique atento(a), em breve teremos novidades!</p>
+<!-- ===== LOADING ===== -->
+<div class="loading-state" *ngIf="carregando">
+  <div class="spinner-border mb-3" style="color: var(--cor-destaque-dourado); width:2.5rem; height:2.5rem;" role="status"></div>
+  <p style="color: var(--cor-texto-secundario);">Carregando eventos...</p>
+</div>
+
+<!-- ===== EVENTOS ===== -->
+<div *ngIf="!carregando">
+
+  <!-- Cabeçalho da seção -->
+  <div class="section-header" *ngIf="eventosFiltrados.length > 0">
+    <div class="section-line"></div>
+    <span class="section-title">
+      {{ termoBusca ? 'Resultados' : 'Todos os Eventos' }}
+    </span>
+    <div class="section-line"></div>
   </div>
 
+  <!-- Grid de cards -->
+  <div class="row g-4 mb-5">
+
+    <div class="col-md-6 col-lg-4" *ngFor="let evento of eventosFiltrados">
+      <div class="evento-card card border-0 h-100">
+        <div class="card-accent"></div>
+        <div class="card-body p-4 d-flex flex-column">
+
+          <!-- Badge + ícone -->
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="card-badge">● Aberto</span>
+            <span style="font-size:1.4rem; opacity:0.7;">🎫</span>
+          </div>
+
+          <!-- Nome -->
+          <h4 class="card-nome">{{ evento.nome }}</h4>
+
+          <!-- Descrição -->
+          <p class="card-descricao">{{ evento.descricao }}</p>
+
+          <!-- Meta info -->
+          <div class="card-meta mt-auto">
+            <div class="card-meta-item">
+              <span>🗓️</span>
+              <span>
+                <strong>Início:</strong> {{ formatarData(evento.dt_inicio) }}
+              </span>
+            </div>
+            <div class="card-meta-item">
+              <span>⏳</span>
+              <span>
+                <strong>Inscrições até:</strong> {{ formatarData(evento.dt_limite_inscricao) }}
+              </span>
+            </div>
+            <div class="card-meta-item">
+              <span>🪑</span>
+              <span>
+                <strong>{{ evento.numero_vagas }}</strong> vagas disponíveis
+              </span>
+            </div>
+          </div>
+
+          <!-- Botão -->
+          <a class="btn-inscrever mt-3" [routerLink]="['/inscricao-evento', evento.id]">
+            🎟️ Inscrever-me
+          </a>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Sem resultados de busca -->
+    <div class="col-12" *ngIf="termoBusca && eventosFiltrados.length === 0">
+      <div class="empty-state">
+        <span class="empty-icon">🔍</span>
+        <p class="empty-title">Nenhum evento encontrado para "{{ termoBusca }}"</p>
+        <p class="empty-sub">Tente pesquisar com outras palavras.</p>
+        <button class="btn btn-sm btn-outline-secondary mt-3" (click)="limparBusca()">
+          Limpar busca
+        </button>
+      </div>
+    </div>
+
+    <!-- Sem eventos -->
+    <div class="col-12" *ngIf="!termoBusca && eventos.length === 0">
+      <div class="empty-state">
+        <span class="empty-icon">🏜️</span>
+        <p class="empty-title">Ainda não existem eventos publicados.</p>
+        <p class="empty-sub">Fique atento(a), em breve teremos novidades!</p>
+      </div>
+    </div>
+
+  </div>
 </div>
