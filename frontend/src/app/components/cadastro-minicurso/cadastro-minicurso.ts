@@ -58,6 +58,29 @@ export class CadastroMinicursoComponent implements OnInit {
     }
   }
 
+  // "2026-06-10 00:00:00" ou "2026-06-10T..." → "2026-06-10" (para o <input type="date">)
+  private paraInput(v: string): string {
+    if (!v) return '';
+    const s = v.split('T')[0].split(' ')[0].trim();
+    // Se vier DD/MM/YYYY do banco, inverte para YYYY-MM-DD
+    if (s.includes('/')) {
+      const [d, m, a] = s.split('/');
+      return `${a}-${m}-${d}`;
+    }
+    return s;
+  }
+
+  // "2026-06-10" (do <input type="date">) → "10/06/2026" (que o backend exige)
+  private paraEnvio(v: string): string {
+    if (!v) return '';
+    const s = v.split(' ')[0].trim();
+    if (s.includes('-')) {
+      const [a, m, d] = s.split('-');
+      return `${d}/${m}/${a}`;
+    }
+    return s;
+  }
+
   carregarMinicurso(): void {
     this.carregando = true;
     this.minicursoService.obterPorId(this.minicursoId!).subscribe({
@@ -66,12 +89,12 @@ export class CadastroMinicursoComponent implements OnInit {
           id_evento:                res.id_evento,
           nome:                     res.nome || '',
           descricao:                res.descricao || '',
-          dt_minicurso:             (res.dt_minicurso || '').split('T')[0].split(' ')[0],
+          dt_minicurso:             this.paraInput(res.dt_minicurso),
           horario_inicio_minicurso: res.horario_inicio_minicurso || '',
           horario_fim_minicurso:    res.horario_fim_minicurso || '',
           nome_instrutor:           res.nome_instrutor || '',
           minicurriculo_instrutor:  res.minicurriculo_instrutor || '',
-          dt_limite_inscricao:      (res.dt_limite_inscricao || '').split('T')[0].split(' ')[0],
+          dt_limite_inscricao:      this.paraInput(res.dt_limite_inscricao),
           numero_vagas:             res.vagas_disponiveis ?? res.numero_vagas ?? null
         };
         this.carregando = false;
@@ -87,9 +110,16 @@ export class CadastroMinicursoComponent implements OnInit {
     this.erroMsg = '';
     this.carregando = true;
 
+    // Converte YYYY-MM-DD → DD/MM/YYYY antes de enviar ao backend
+    const payload = {
+      ...this.minicurso,
+      dt_minicurso:        this.paraEnvio(this.minicurso.dt_minicurso),
+      dt_limite_inscricao: this.paraEnvio(this.minicurso.dt_limite_inscricao)
+    };
+
     const acao = this.isEdit
-      ? this.minicursoService.atualizar(this.minicursoId!, this.minicurso)
-      : this.minicursoService.cadastrar(this.minicurso);
+      ? this.minicursoService.atualizar(this.minicursoId!, payload)
+      : this.minicursoService.cadastrar(payload);
 
     acao.subscribe({
       next: () => {

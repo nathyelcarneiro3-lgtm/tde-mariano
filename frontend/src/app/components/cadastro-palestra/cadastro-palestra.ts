@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { PalestraService } from '../../services/palestra';
@@ -33,10 +33,15 @@ export class CadastroPalestraComponent implements OnInit {
     private palestraService: PalestraService,
     private eventoService: EventoService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
+    if (!isPlatformBrowser(this.platformId)) return;
+    if (!localStorage.getItem('token')) { this.router.navigate(['/login']); return; }
+    if (localStorage.getItem('usuarioAdmin') !== '1') { this.router.navigate(['/home']); return; }
+
     this.eventoService.obterTodos().subscribe({
       next: (dados: any) => { this.eventos = Array.isArray(dados) ? dados : []; },
       error: () => { this.eventos = []; }
@@ -50,6 +55,28 @@ export class CadastroPalestraComponent implements OnInit {
     }
   }
 
+  // "2026-06-10 00:00:00" → "2026-06-10" (para o <input type="date">)
+  private paraInput(v: string): string {
+    if (!v) return '';
+    const s = v.split('T')[0].split(' ')[0].trim();
+    if (s.includes('/')) {
+      const [d, m, a] = s.split('/');
+      return `${a}-${m}-${d}`;
+    }
+    return s;
+  }
+
+  // "2026-06-10" → "10/06/2026" (que o backend exige)
+  private paraEnvio(v: string): string {
+    if (!v) return '';
+    const s = v.split(' ')[0].trim();
+    if (s.includes('-')) {
+      const [a, m, d] = s.split('-');
+      return `${d}/${m}/${a}`;
+    }
+    return s;
+  }
+
   carregarPalestra(): void {
     this.carregando = true;
     this.palestraService.obterPorId(this.palestraId!).subscribe({
@@ -58,7 +85,7 @@ export class CadastroPalestraComponent implements OnInit {
           id_evento:                 res.id_evento,
           nome:                      res.nome || '',
           descricao:                 res.descricao || '',
-          dt_palestra:               (res.dt_palestra || '').split('T')[0],
+          dt_palestra:               this.paraInput(res.dt_palestra),
           horario_inicio_palestra:   res.horario_inicio_palestra || '',
           horario_fim_palestra:      res.horario_fim_palestra || '',
           nome_palestrante:          res.nome_palestrante || '',
@@ -77,13 +104,19 @@ export class CadastroPalestraComponent implements OnInit {
     this.erroMsg = '';
     this.carregando = true;
 
+    // Converte YYYY-MM-DD → DD/MM/YYYY antes de enviar ao backend
+    const payload = {
+      ...this.palestra,
+      dt_palestra: this.paraEnvio(this.palestra.dt_palestra)
+    };
+
     const acao = this.isEdit
-      ? this.palestraService.atualizar(this.palestraId!, this.palestra)
-      : this.palestraService.cadastrar(this.palestra);
+      ? this.palestraService.atualizar(this.palestraId!, payload)
+      : this.palestraService.cadastrar(payload);
 
     acao.subscribe({
       next: () => {
-        alert(this.isEdit ? 'Palestra atualizada!' : 'Palestra cadastrada!');
+        alert(this.isEdit ? 'Palestra atualizada com sucesso!' : 'Palestra cadastrada com sucesso!');
         this.router.navigate(['/lista-palestras']);
       },
       error: (err: any) => {
