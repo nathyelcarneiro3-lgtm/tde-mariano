@@ -12,7 +12,6 @@ export class EventoService {
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  // O backend usa jwtDecode() direto no token — sem "Bearer "
   private getHeaders(): HttpHeaders {
     const token = isPlatformBrowser(this.platformId)
       ? localStorage.getItem('token') || ''
@@ -28,7 +27,6 @@ export class EventoService {
   }
 
   cadastrar(evento: any): Observable<any> {
-    // Garante que apenas os campos esperados pelo backend são enviados
     const payload = {
       nome: evento.nome,
       descricao: evento.descricao,
@@ -51,8 +49,6 @@ export class EventoService {
     return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
-  // FIX CRÍTICO: o body do PUT NÃO pode conter "id"
-  // Backend faz: Evento(id, **request.json) — se "id" vier no JSON, TypeError
   atualizar(id: number, evento: any): Observable<any> {
     const payload = {
       nome: evento.nome,
@@ -66,6 +62,14 @@ export class EventoService {
       email_responsavel: evento.email_responsavel
     };
     return this.http.put<any>(`${this.apiUrl}/${id}`, payload, { headers: this.getHeaders() });
+  }
+
+  // Req 25 — lista palestras e minicursos de um evento
+  obterProgramacao(idEvento: number): Observable<any> {
+    return this.http.get<any>(
+      `${this.apiUrl}/programacao/${idEvento}`,
+      { headers: this.getHeaders() }
+    );
   }
 
   obterInscritosPorEvento(idEvento: number): Observable<any> {

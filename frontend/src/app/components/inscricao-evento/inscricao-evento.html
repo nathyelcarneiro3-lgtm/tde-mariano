@@ -1,12 +1,10 @@
-<!-- Estado: Carregando -->
+<!-- Carregando -->
 <div *ngIf="carregando" class="text-center py-5">
-  <div class="spinner-border" style="color: var(--cor-destaque-dourado);" role="status">
-    <span class="visually-hidden">Carregando...</span>
-  </div>
+  <div class="spinner-border" style="color: var(--cor-destaque-dourado);" role="status"></div>
   <p class="mt-3" style="color: var(--cor-texto-secundario);">A carregar evento...</p>
 </div>
 
-<!-- Estado: Erro fatal -->
+<!-- Erro fatal -->
 <div *ngIf="!carregando && !evento && erroMsg" class="alert alert-danger mt-4">
   {{ erroMsg }}
   <br>
@@ -21,17 +19,17 @@
        style="background: linear-gradient(135deg, #1e293b 0%, #0b1120 100%); border: 1px solid rgba(212,175,55,0.2);">
     <div style="font-size: 3rem; margin-bottom: 8px;">🎫</div>
     <h1 class="fw-bold mb-1" style="color: var(--cor-destaque-dourado);">{{ evento.nome }}</h1>
-    <p style="color: var(--cor-texto-secundario);">Confirme a sua inscrição no evento abaixo</p>
+    <p style="color: var(--cor-texto-secundario);">Confirme a sua inscrição e veja a programação completa</p>
   </div>
 
-  <div class="row g-4">
+  <!-- Linha 1: Detalhes + Painel de Inscrição -->
+  <div class="row g-4 mb-4">
 
     <!-- Detalhes do Evento -->
     <div class="col-lg-7">
       <div class="card p-4 h-100">
         <h4 class="fw-bold mb-4" style="color: var(--cor-destaque-dourado);">📋 Detalhes do Evento</h4>
 
-        <!-- Descrição em destaque -->
         <h6 class="fw-bold mb-2" style="color: var(--cor-destaque-dourado);">📝 Descrição</h6>
         <p class="mb-4 lh-lg" style="color: var(--cor-texto-secundario);">{{ evento.descricao }}</p>
 
@@ -58,7 +56,7 @@
 
         <hr style="border-color: rgba(255,255,255,0.1);">
 
-        <h6 class="fw-bold mb-2" style="color: var(--cor-destaque-dourado);">👤 Responsável pelo Evento</h6>
+        <h6 class="fw-bold mb-2" style="color: var(--cor-destaque-dourado);">👤 Responsável</h6>
         <p class="mb-1 text-white">{{ evento.nome_responsavel }}</p>
         <p class="mb-1" style="color: var(--cor-texto-secundario);">📧 {{ evento.email_responsavel }}</p>
         <p class="mb-0" style="color: var(--cor-texto-secundario);">🪪 CPF: {{ evento.cpf_responsavel }}</p>
@@ -76,34 +74,30 @@
             <p class="fw-bold text-white mb-0 mt-1">{{ getNomeUsuario() }}</p>
           </div>
 
-          <!-- Mensagem de sucesso -->
           <div *ngIf="sucessoMsg" class="alert alert-success rounded-3 py-3">
             <strong>{{ sucessoMsg }}</strong>
           </div>
-
-          <!-- Mensagem de erro -->
           <div *ngIf="erroMsg" class="alert alert-danger rounded-3 py-3">
             {{ erroMsg }}
           </div>
-
-          <!-- Já inscrito -->
           <div *ngIf="jaInscrito && !sucessoMsg" class="alert rounded-3 py-3"
                style="background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.4); color: var(--cor-destaque-dourado);">
             ✅ Você já está inscrito neste evento.
           </div>
+
+          <!-- Aviso sobre minicursos -->
+          <div *ngIf="jaInscrito && minicursos.length > 0" class="mt-3 p-3 rounded-3"
+               style="background: rgba(99,179,237,0.08); border: 1px solid rgba(99,179,237,0.2);">
+            <small style="color: #63b3ed;">💡 Como inscrito, você pode se inscrever nos minicursos abaixo.</small>
+          </div>
         </div>
 
         <div class="mt-4">
-          <!-- Botão de inscrição -->
-          <button
-            *ngIf="!jaInscrito"
-            class="btn btn-primary w-100 py-3 fw-bold fs-5"
-            (click)="inscrever()"
-            [disabled]="inscrevendo">
+          <button *ngIf="!jaInscrito" class="btn btn-primary w-100 py-3 fw-bold fs-5"
+                  (click)="inscrever()" [disabled]="inscrevendo">
             <span *ngIf="inscrevendo" class="spinner-border spinner-border-sm me-2" role="status"></span>
             {{ inscrevendo ? 'A inscrever...' : '🎟️ Confirmar Inscrição' }}
           </button>
-
           <a routerLink="/home" class="btn btn-outline-secondary w-100 mt-3">
             ← Voltar aos Eventos
           </a>
@@ -112,4 +106,122 @@
     </div>
 
   </div>
+
+  <!-- ===== PROGRAMAÇÃO DO EVENTO (Req 25) ===== -->
+  <div class="mb-5">
+
+    <!-- Spinner programação -->
+    <div *ngIf="carregandoProgramacao" class="text-center py-4">
+      <div class="spinner-border spinner-border-sm me-2" style="color: var(--cor-destaque-dourado);" role="status"></div>
+      <span style="color: var(--cor-texto-secundario);">Carregando programação...</span>
+    </div>
+
+    <div *ngIf="!carregandoProgramacao && (palestras.length > 0 || minicursos.length > 0)">
+
+      <!-- Título da seção -->
+      <div class="d-flex align-items-center gap-3 mb-4">
+        <div style="flex:1; height:1px; background: rgba(212,175,55,0.2);"></div>
+        <h3 class="fw-bold mb-0" style="color: var(--cor-destaque-dourado); white-space: nowrap;">
+          📅 Programação do Evento
+        </h3>
+        <div style="flex:1; height:1px; background: rgba(212,175,55,0.2);"></div>
+      </div>
+
+      <!-- Alertas de minicurso -->
+      <div *ngIf="erroMinicurso" class="alert alert-danger rounded-3 mb-3">{{ erroMinicurso }}</div>
+      <div *ngIf="sucessoMinicurso" class="alert alert-success rounded-3 mb-3">{{ sucessoMinicurso }}</div>
+
+      <!-- ---- PALESTRAS ---- -->
+      <div *ngIf="palestras.length > 0" class="mb-5">
+        <h5 class="fw-bold mb-3" style="color: var(--cor-texto-principal);">
+          🎤 Palestras <span class="badge ms-2" style="background: rgba(212,175,55,0.15); color: var(--cor-destaque-dourado); font-size: 0.75rem;">{{ palestras.length }}</span>
+        </h5>
+        <div class="row g-3">
+          <div class="col-md-6" *ngFor="let p of palestras">
+            <div class="card p-3 h-100" style="border-left: 3px solid rgba(212,175,55,0.4) !important;">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="fw-bold text-white mb-0">{{ p.nome }}</h6>
+                <span class="badge rounded-pill ms-2" style="background: rgba(212,175,55,0.12); color: var(--cor-destaque-dourado); font-size: 0.7rem; white-space: nowrap;">
+                  🎤 Palestra
+                </span>
+              </div>
+              <p class="small mb-3 lh-base" style="color: var(--cor-texto-secundario);">{{ p.descricao }}</p>
+              <div class="mt-auto">
+                <p class="small mb-1 text-white">👨‍🏫 {{ p.nome_palestrante }}</p>
+                <p class="small mb-0" style="color: var(--cor-texto-secundario);">
+                  🗓️ {{ formatarData(p.dt_palestra) }}
+                  &nbsp;·&nbsp;
+                  🕐 {{ p.horario_inicio_palestra }} – {{ p.horario_fim_palestra }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ---- MINICURSOS ---- -->
+      <div *ngIf="minicursos.length > 0">
+        <h5 class="fw-bold mb-3" style="color: var(--cor-texto-principal);">
+          🎓 Minicursos <span class="badge ms-2" style="background: rgba(99,179,237,0.15); color: #63b3ed; font-size: 0.75rem;">{{ minicursos.length }}</span>
+        </h5>
+        <div class="row g-3">
+          <div class="col-md-6" *ngFor="let m of minicursos">
+            <div class="card p-3 h-100" style="border-left: 3px solid rgba(99,179,237,0.4) !important;">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="fw-bold text-white mb-0">{{ m.nome }}</h6>
+                <span class="badge rounded-pill ms-2" style="background: rgba(99,179,237,0.12); color: #63b3ed; font-size: 0.7rem; white-space: nowrap;">
+                  🎓 Minicurso
+                </span>
+              </div>
+              <p class="small mb-3 lh-base" style="color: var(--cor-texto-secundario);">{{ m.descricao }}</p>
+              <div class="mt-auto">
+                <p class="small mb-1 text-white">👨‍🏫 {{ m.nome_instrutor }}</p>
+                <p class="small mb-1" style="color: var(--cor-texto-secundario);">
+                  🗓️ {{ formatarData(m.dt_minicurso) }}
+                  &nbsp;·&nbsp;
+                  🕐 {{ m.horario_inicio_minicurso }} – {{ m.horario_fim_minicurso }}
+                </p>
+                <div class="d-flex justify-content-between align-items-center mt-2">
+                  <div>
+                    <span class="small" style="color: var(--cor-texto-secundario);">
+                      🪑 <strong class="text-white">{{ m.vagas_disponiveis ?? m.numero_vagas ?? '—' }}</strong> vagas
+                      &nbsp;·&nbsp; Limite: {{ formatarData(m.dt_limite_inscricao) }}
+                    </span>
+                  </div>
+                </div>
+                <!-- Botão inscrição no minicurso -->
+                <button
+                  *ngIf="jaInscrito && !inscricaoMinicursoEncerrada(m.dt_limite_inscricao)"
+                  class="btn btn-sm w-100 mt-3 fw-bold"
+                  style="background: rgba(99,179,237,0.15); border: 1px solid rgba(99,179,237,0.4); color: #63b3ed;"
+                  (click)="inscreverMinicurso(m)"
+                  [disabled]="inscrevendoMinicurso === m.id">
+                  <span *ngIf="inscrevendoMinicurso === m.id" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                  {{ inscrevendoMinicurso === m.id ? 'Inscrevendo...' : '🎟️ Inscrever-me no Minicurso' }}
+                </button>
+                <div *ngIf="!jaInscrito && !inscricaoMinicursoEncerrada(m.dt_limite_inscricao)"
+                     class="mt-2 text-center small" style="color: var(--cor-texto-secundario);">
+                  Inscreva-se no evento para poder entrar neste minicurso
+                </div>
+                <div *ngIf="inscricaoMinicursoEncerrada(m.dt_limite_inscricao)"
+                     class="mt-2 text-center">
+                  <span class="badge rounded-pill" style="background: rgba(239,68,68,0.12); color: #f87171;">
+                    Inscrições encerradas
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sem programação -->
+    <div *ngIf="!carregandoProgramacao && palestras.length === 0 && minicursos.length === 0" class="text-center py-4">
+      <p style="color: var(--cor-texto-secundario); opacity: 0.6;">Nenhuma palestra ou minicurso cadastrado para este evento ainda.</p>
+    </div>
+
+  </div>
+
 </div>
