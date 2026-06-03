@@ -29,7 +29,9 @@
         </p>
         
         <div class="mt-auto pt-3">
-          <button class="btn btn-outline-warning w-100 fw-bold" style="border-color: var(--cor-destaque-dourado); color: var(--cor-destaque-dourado); border-width: 2px;">
+          <button class="btn btn-outline-warning w-100 fw-bold"
+                  style="border-color: var(--cor-destaque-dourado); color: var(--cor-destaque-dourado); border-width: 2px;"
+                  [routerLink]="['/inscricao-evento', evento.id]">
             Inscrever-me
           </button>
         </div>

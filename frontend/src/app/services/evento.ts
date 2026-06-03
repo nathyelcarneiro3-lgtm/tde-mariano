@@ -74,4 +74,19 @@ export class EventoService {
       { headers: this.getHeaders() }
     );
   }
+
+  inscrever(idEvento: number, idUsuarioParticipante: number): Observable<any> {
+    return this.http.post<any>(
+      `http://127.0.0.1:5000/api/v1/inscricao/evento`,
+      { id_evento: idEvento, id_usuario_participante: idUsuarioParticipante },
+      { headers: this.getHeaders() }
+    );
+  }
+
+  removerInscricao(idEvento: number, idParticipante: number): Observable<any> {
+    return this.http.delete<any>(
+      `http://127.0.0.1:5000/api/v1/inscricao/evento/${idEvento}/${idParticipante}`,
+      { headers: this.getHeaders() }
+    );
+  }
 }

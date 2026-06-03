@@ -12,6 +12,9 @@ import { ListaInscritosComponent } from './components/lista-inscritos/lista-insc
 import { EditarPerfilComponent } from './components/editar-perfil/editar-perfil';
 import { ListaUsuariosComponent } from './components/lista-usuarios/lista-usuarios';
 
+// Req 9 - inscrição em evento
+import { InscricaoEventoComponent } from './components/inscricao-evento/inscricao-evento';
+
 export const routes: Routes = [
   // Rota inicial
   { path: '', redirectTo: '/home', pathMatch: 'full' },
@@ -27,11 +30,14 @@ export const routes: Routes = [
   // Rotas de administração
   { path: 'admin', component: AdminEventosComponent },
   { path: 'cadastro-evento', component: CadastroEventoComponent },
-  { path: 'cadastro-evento/:id', component: CadastroEventoComponent }, // Adicione esta linha
+  { path: 'cadastro-evento/:id', component: CadastroEventoComponent },
   { path: 'lista-inscritos', component: ListaInscritosComponent },
 
   // Req 3 e 5 - gerenciar usuários (somente admin)
   { path: 'lista-usuarios', component: ListaUsuariosComponent },
+
+  // Req 9 - inscrição em evento (usuário logado)
+  { path: 'inscricao-evento/:id', component: InscricaoEventoComponent },
 
   // Fallback
   { path: '**', redirectTo: '/home' }

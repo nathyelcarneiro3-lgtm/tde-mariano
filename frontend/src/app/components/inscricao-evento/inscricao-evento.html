@@ -1,1 +1,115 @@
-<p>inscricao-evento works!</p>
+<!-- Estado: Carregando -->
+<div *ngIf="carregando" class="text-center py-5">
+  <div class="spinner-border" style="color: var(--cor-destaque-dourado);" role="status">
+    <span class="visually-hidden">Carregando...</span>
+  </div>
+  <p class="mt-3" style="color: var(--cor-texto-secundario);">A carregar evento...</p>
+</div>
+
+<!-- Estado: Erro fatal -->
+<div *ngIf="!carregando && !evento && erroMsg" class="alert alert-danger mt-4">
+  {{ erroMsg }}
+  <br>
+  <a routerLink="/home" class="btn btn-sm btn-outline-light mt-2">← Voltar aos eventos</a>
+</div>
+
+<!-- Conteúdo principal -->
+<div *ngIf="!carregando && evento">
+
+  <!-- Cabeçalho -->
+  <div class="py-4 mb-4 rounded-4 shadow-lg text-center"
+       style="background: linear-gradient(135deg, #1e293b 0%, #0b1120 100%); border: 1px solid rgba(212,175,55,0.2);">
+    <div style="font-size: 3rem; margin-bottom: 8px;">🎫</div>
+    <h1 class="fw-bold mb-1" style="color: var(--cor-destaque-dourado);">{{ evento.nome }}</h1>
+    <p style="color: var(--cor-texto-secundario);">Confirme a sua inscrição no evento abaixo</p>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Detalhes do Evento -->
+    <div class="col-lg-7">
+      <div class="card p-4 h-100">
+        <h4 class="fw-bold mb-4" style="color: var(--cor-destaque-dourado);">📋 Detalhes do Evento</h4>
+
+        <!-- Descrição em destaque -->
+        <h6 class="fw-bold mb-2" style="color: var(--cor-destaque-dourado);">📝 Descrição</h6>
+        <p class="mb-4 lh-lg" style="color: var(--cor-texto-secundario);">{{ evento.descricao }}</p>
+
+        <hr style="border-color: rgba(255,255,255,0.1);">
+
+        <div class="row g-3 mt-1">
+          <div class="col-sm-6">
+            <small style="color: var(--cor-texto-secundario);">📅 Data de Início</small>
+            <p class="fw-bold text-white mb-0">{{ formatarData(evento.dt_inicio) }}</p>
+          </div>
+          <div class="col-sm-6">
+            <small style="color: var(--cor-texto-secundario);">📅 Data de Fim</small>
+            <p class="fw-bold text-white mb-0">{{ formatarData(evento.dt_fim) }}</p>
+          </div>
+          <div class="col-sm-6">
+            <small style="color: var(--cor-texto-secundario);">⏳ Limite de Inscrição</small>
+            <p class="fw-bold text-white mb-0">{{ formatarData(evento.dt_limite_inscricao) }}</p>
+          </div>
+          <div class="col-sm-6">
+            <small style="color: var(--cor-texto-secundario);">🪑 Vagas Disponíveis</small>
+            <p class="fw-bold text-white mb-0">{{ evento.numero_vagas }}</p>
+          </div>
+        </div>
+
+        <hr style="border-color: rgba(255,255,255,0.1);">
+
+        <h6 class="fw-bold mb-2" style="color: var(--cor-destaque-dourado);">👤 Responsável pelo Evento</h6>
+        <p class="mb-1 text-white">{{ evento.nome_responsavel }}</p>
+        <p class="mb-1" style="color: var(--cor-texto-secundario);">📧 {{ evento.email_responsavel }}</p>
+        <p class="mb-0" style="color: var(--cor-texto-secundario);">🪪 CPF: {{ evento.cpf_responsavel }}</p>
+      </div>
+    </div>
+
+    <!-- Painel de Inscrição -->
+    <div class="col-lg-5">
+      <div class="card p-4 h-100 d-flex flex-column justify-content-between">
+        <div>
+          <h4 class="fw-bold mb-4" style="color: var(--cor-destaque-dourado);">✍️ Sua Inscrição</h4>
+
+          <div class="mb-3 p-3 rounded-3" style="background: rgba(212,175,55,0.08); border: 1px solid rgba(212,175,55,0.2);">
+            <small style="color: var(--cor-texto-secundario);">Inscrevendo como:</small>
+            <p class="fw-bold text-white mb-0 mt-1">{{ getNomeUsuario() }}</p>
+          </div>
+
+          <!-- Mensagem de sucesso -->
+          <div *ngIf="sucessoMsg" class="alert alert-success rounded-3 py-3">
+            <strong>{{ sucessoMsg }}</strong>
+          </div>
+
+          <!-- Mensagem de erro -->
+          <div *ngIf="erroMsg" class="alert alert-danger rounded-3 py-3">
+            {{ erroMsg }}
+          </div>
+
+          <!-- Já inscrito -->
+          <div *ngIf="jaInscrito && !sucessoMsg" class="alert rounded-3 py-3"
+               style="background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.4); color: var(--cor-destaque-dourado);">
+            ✅ Você já está inscrito neste evento.
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <!-- Botão de inscrição -->
+          <button
+            *ngIf="!jaInscrito"
+            class="btn btn-primary w-100 py-3 fw-bold fs-5"
+            (click)="inscrever()"
+            [disabled]="inscrevendo">
+            <span *ngIf="inscrevendo" class="spinner-border spinner-border-sm me-2" role="status"></span>
+            {{ inscrevendo ? 'A inscrever...' : '🎟️ Confirmar Inscrição' }}
+          </button>
+
+          <a routerLink="/home" class="btn btn-outline-secondary w-100 mt-3">
+            ← Voltar aos Eventos
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
