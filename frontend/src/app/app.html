@@ -8,13 +8,13 @@
           <a class="nav-link" routerLink="/home" routerLinkActive="active">Início</a>
         </li>
 
-        <!-- Minicursos: visível para todos os logados -->
-        <li class="nav-item me-2" *ngIf="usuarioEstaLogado()">
+        <!-- Minicursos: só admin -->
+        <li class="nav-item me-2" *ngIf="usuarioEAdmin()">
           <a class="nav-link" routerLink="/lista-minicursos" routerLinkActive="active">🎓 Minicursos</a>
         </li>
 
-        <!-- Área Admin -->
-        <li class="nav-item me-2" *ngIf="usuarioEstaLogado()">
+        <!-- Área Admin: só admin -->
+        <li class="nav-item me-2" *ngIf="usuarioEAdmin()">
           <a class="nav-link text-warning fw-bold" routerLink="/admin" routerLinkActive="active">⚙️ Área Admin</a>
         </li>
 
