@@ -12,18 +12,15 @@ import { UsuarioService } from '../../services/usuario';
 })
 export class EditarPerfilComponent implements OnInit {
 
+  // ID do usuário sendo editado
   idAlvo: number = 0;
-  cpfAlvo: string = '';
-  // CORRIGIDO: "editar outro usuário" foi removido porque o backend não permite
-  // que um usuário (mesmo admin) atualize dados de outro via PUT /usuario/{id}.
-  // O backend verifica: if not usuarioLogado.id == usuario.id → rejeita.
-  // Só é possível editar o próprio perfil com o próprio token.
+  cpfAlvo: string = '';          // só para exibir no formulário
+  editandoOutroUsuario: boolean = false;
 
   usuario: any = {
     nome: '',
     email: '',
-    senhaAtual: '',   // NOVO: backend exige senha não-vazia no PUT
-    novaSenha: '',
+    senha: '',
     confirmarSenha: ''
   };
 
@@ -40,36 +37,74 @@ export class EditarPerfilComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const idParam = this.route.snapshot.queryParamMap.get('id');
     const idLogado = this.usuarioService.getIdLogado();
 
-    if (!idLogado) {
-      alert('Você precisa estar logado para editar seu perfil.');
-      this.router.navigate(['/login']);
-      return;
+    if (idParam && Number(idParam) !== idLogado) {
+      // Admin editando outro usuário
+      if (!this.usuarioService.isAdmin()) {
+        alert('Acesso negado. Apenas administradores podem editar outros usuários.');
+        this.router.navigate(['/home']);
+        return;
+      }
+      this.idAlvo = Number(idParam);
+      this.editandoOutroUsuario = true;
+    } else {
+      // Usuário editando a si mesmo
+      if (!idLogado) {
+        alert('Você precisa estar logado para editar seu perfil.');
+        this.router.navigate(['/login']);
+        return;
+      }
+      this.idAlvo = idLogado;
+      this.editandoOutroUsuario = false;
     }
 
-    this.idAlvo = idLogado;
     this.carregarDados();
   }
 
   carregarDados(): void {
     this.carregandoDados = true;
-    this.erroMsg = '';
 
-    this.usuarioService.buscarPorToken().subscribe({
-      next: (dados: any) => {
-        this.usuario.nome = dados.nome;
-        this.usuario.email = dados.email;
-        this.cpfAlvo = dados.cpf;
-        this.idAlvo = dados.id;
-        this.carregandoDados = false;
-      },
-      error: (err: any) => {
-        this.erroMsg = 'Erro ao carregar dados do usuário. Verifique se o backend está rodando.';
-        this.carregandoDados = false;
-        console.error(err);
-      }
-    });
+    if (!this.editandoOutroUsuario) {
+      // Próprio usuário: usa o endpoint /porToken (não precisa de ID)
+      this.usuarioService.buscarPorToken().subscribe({
+        next: (dados: any) => {
+          this.usuario.nome = dados.nome;
+          this.usuario.email = dados.email;
+          this.cpfAlvo = dados.cpf;
+          this.idAlvo = dados.id;
+          this.carregandoDados = false;
+        },
+        error: (err: any) => {
+          this.erroMsg = 'Erro ao carregar dados do usuário.';
+          this.carregandoDados = false;
+          console.error(err);
+        }
+      });
+    } else {
+      // Admin editando outro: usa listarTodos e filtra pelo ID
+      // (o backend não tem GET /usuario/{id} público, mas tem GET /usuario que retorna todos)
+      this.usuarioService.listarTodos().subscribe({
+        next: (lista: any[]) => {
+          const encontrado = lista.find((u: any) => u.id === this.idAlvo);
+          if (!encontrado) {
+            this.erroMsg = 'Usuário não encontrado.';
+            this.carregandoDados = false;
+            return;
+          }
+          this.usuario.nome = encontrado.nome;
+          this.usuario.email = encontrado.email;
+          this.cpfAlvo = encontrado.cpf;
+          this.carregandoDados = false;
+        },
+        error: (err: any) => {
+          this.erroMsg = 'Erro ao carregar dados do usuário.';
+          this.carregandoDados = false;
+          console.error(err);
+        }
+      });
+    }
   }
 
   salvar(): void {
@@ -81,29 +116,18 @@ export class EditarPerfilComponent implements OnInit {
       return;
     }
 
-    // CORRIGIDO: o backend exige senha não-vazia no body do PUT.
-    // Se o usuário quer trocar a senha, usa a nova; senão, usa a senha atual
-    // (que ele deve informar para confirmar a identidade).
-    if (!this.usuario.senhaAtual) {
-      this.erroMsg = 'Informe sua senha atual para salvar as alterações.';
-      return;
-    }
-
-    if (this.usuario.novaSenha && this.usuario.novaSenha !== this.usuario.confirmarSenha) {
-      this.erroMsg = 'A nova senha e a confirmação não coincidem.';
+    if (this.usuario.senha && this.usuario.senha !== this.usuario.confirmarSenha) {
+      this.erroMsg = 'As senhas não coincidem.';
       return;
     }
 
     this.carregando = true;
 
-    // Se digitou nova senha, usa ela; senão mantém a atual
-    const senhaFinal = this.usuario.novaSenha || this.usuario.senhaAtual;
-
     const payload: any = {
-      cpf:   this.cpfAlvo,
+      cpf:   this.cpfAlvo,   // backend exige cpf no body do PUT
       nome:  this.usuario.nome,
       email: this.usuario.email,
-      senha: senhaFinal
+      senha: this.usuario.senha || ''
     };
 
     this.usuarioService.atualizar(this.idAlvo, payload).subscribe({
@@ -111,12 +135,12 @@ export class EditarPerfilComponent implements OnInit {
         this.carregando = false;
         this.successMsg = 'Dados atualizados com sucesso!';
 
-        if (isPlatformBrowser(this.platformId)) {
+        if (!this.editandoOutroUsuario && isPlatformBrowser(this.platformId)) {
           localStorage.setItem('usuarioNome', this.usuario.nome);
         }
 
         setTimeout(() => {
-          this.router.navigate(['/home']);
+          this.router.navigate(this.editandoOutroUsuario ? ['/lista-usuarios'] : ['/home']);
         }, 1500);
       },
       error: (err: any) => {
@@ -128,6 +152,6 @@ export class EditarPerfilComponent implements OnInit {
   }
 
   cancelar(): void {
-    this.router.navigate(['/home']);
+    this.router.navigate(this.editandoOutroUsuario ? ['/lista-usuarios'] : ['/home']);
   }
 }

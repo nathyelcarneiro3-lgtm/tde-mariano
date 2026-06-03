@@ -20,31 +20,72 @@ export class UsuarioService {
     return '';
   }
 
-  // CORRIGIDO: o backend usa jwtDecode(token) diretamente, sem suporte a "Bearer ".
-  // Nunca adicionar o prefixo Bearer — sempre enviar o token puro.
-  private getHeaders(): HttpHeaders {
+  private getHeaders(useBearer: boolean = false): HttpHeaders {
     const token = this.getToken();
-    let headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    if (token) {
-      headers = headers.set('Authorization', token);
+
+    let authorization = token;
+
+    if (useBearer && token && !token.toLowerCase().startsWith('bearer ')) {
+      authorization = `Bearer ${token}`;
     }
+
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+
+    if (authorization) {
+      headers = headers.set('Authorization', authorization);
+    }
+
     return headers;
   }
 
   private getComAuth(url: string): Observable<any> {
-    return this.http.get(url, { headers: this.getHeaders() });
+    return this.http.get(url, { headers: this.getHeaders(false) }).pipe(
+      catchError((err) => {
+        if (err.status === 401 || err.status === 403) {
+          return this.http.get(url, { headers: this.getHeaders(true) });
+        }
+
+        return throwError(() => err);
+      })
+    );
   }
 
   private postComAuth(url: string, body: any): Observable<any> {
-    return this.http.post(url, body, { headers: this.getHeaders() });
+    return this.http.post(url, body, { headers: this.getHeaders(false) }).pipe(
+      catchError((err) => {
+        if (err.status === 401 || err.status === 403) {
+          return this.http.post(url, body, { headers: this.getHeaders(true) });
+        }
+
+        return throwError(() => err);
+      })
+    );
   }
 
   private putComAuth(url: string, body: any): Observable<any> {
-    return this.http.put(url, body, { headers: this.getHeaders() });
+    return this.http.put(url, body, { headers: this.getHeaders(false) }).pipe(
+      catchError((err) => {
+        if (err.status === 401 || err.status === 403) {
+          return this.http.put(url, body, { headers: this.getHeaders(true) });
+        }
+
+        return throwError(() => err);
+      })
+    );
   }
 
   private deleteComAuth(url: string): Observable<any> {
-    return this.http.delete(url, { headers: this.getHeaders() });
+    return this.http.delete(url, { headers: this.getHeaders(false) }).pipe(
+      catchError((err) => {
+        if (err.status === 401 || err.status === 403) {
+          return this.http.delete(url, { headers: this.getHeaders(true) });
+        }
+
+        return throwError(() => err);
+      })
+    );
   }
 
   private normalizarUsuario(usuario: any): any {
