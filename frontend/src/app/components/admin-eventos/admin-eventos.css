@@ -2,23 +2,21 @@
 .custom-table th {
   letter-spacing: 0.8px;
   text-transform: uppercase;
-  border-bottom: 2px solid #e2e8f0;
   font-size: 0.85rem;
+  color: #495057;
+  font-weight: 600;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 /* Espaçamento e linhas das células */
 .custom-table td {
   border-bottom: 1px solid #f1f5f9;
-  background-color: #ffffff;
 }
 
-/* Efeito de hover (ao passar o rato por cima da linha) */
-.custom-table tbody tr {
-  transition: all 0.2s ease;
-}
-
-.custom-table tbody tr:hover td {
+/* Efeito de hover */
+.table-hover tbody tr:hover {
   background-color: #f8fafc;
+  transition: background-color 0.2s ease;
 }
 
 /* Estilização do botão de Excluir */
@@ -33,35 +31,19 @@
   background-color: #ef4444;
   color: #ffffff;
   border-color: #ef4444;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
-  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.25);
 }
 
-/* Bordas mais arredondadas para o cartão */
-.rounded-4 {
-  border-radius: 1rem !important;
+/* Ajustes de borda e scroll */
+.table-responsive {
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
 }
 
-/* Esconde a barra de scroll feia na tabela em telemóveis */
 .table-responsive::-webkit-scrollbar {
   height: 8px;
 }
 .table-responsive::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 4px;
-}
-.table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.table-light th {
-  background-color: #f8f9fa;
-  color: #495057;
-  font-weight: 600;
-}
-
-.table tr:hover {
-  background-color: #f1f5f9;
-  transition: background-color 0.2s ease;
 }

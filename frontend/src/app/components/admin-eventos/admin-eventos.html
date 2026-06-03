@@ -5,39 +5,46 @@
       <p class="text-muted small mb-0">Faça a gestão de todos os seus eventos ativos.</p>
     </div>
     
-    <button class="btn btn-primary shadow-sm px-4 fw-bold" routerLink="/cadastro-evento">
-      + Novo Evento
-    </button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" (click)="carregarEventos()">
+        <i class="bi bi-arrow-clockwise"></i> Atualizar
+      </button>
+      <button class="btn btn-primary shadow-sm px-4 fw-bold" routerLink="/cadastro-evento">
+        + Novo Evento
+      </button>
+    </div>
   </div>
 
   <hr class="mb-4">
 
-  <div class="mt-4 table-responsive bg-white shadow-sm rounded">
-  <table class="table table-hover align-middle mb-0">
-    <thead class="table-light">
-      <tr>
-        <th style="padding: 1rem;">ID</th>
-        <th style="padding: 1rem;">Nome do Evento</th>
-        <th style="padding: 1rem;">Local</th>
-        <th style="padding: 1rem;">Descrição</th>
-        <th style="padding: 1rem; text-align: center;">Ações</th>
-      </tr>
-    </thead>
-   <tbody>
-  <tr *ngFor="let evento of eventos">
-    <td>{{ evento.id }}</td>
-    <td>{{ evento.nome }}</td> <td>{{ evento.dt_inicio }}</td> <td>{{ evento.dt_fim }}</td>
-    <td style="text-align: center;">
-      <button class="btn btn-sm btn-outline-primary me-2" (click)="editarEvento(evento.id)">Editar</button>
-      <button class="btn btn-sm btn-outline-danger" (click)="excluirEvento(evento.id)">Excluir</button>
-    </td>
-  </tr>
-  
-  <tr *ngIf="eventos.length === 0">
-    <td colspan="5" class="text-center py-4 text-muted">
-      Nenhum evento encontrado no banco de dados.
-    </td>
-  </tr>
-</tbody>
-  </table>
+  <div class="table-responsive bg-white shadow-sm rounded border">
+    <table class="table table-hover align-middle mb-0 custom-table">
+      <thead class="table-light">
+        <tr>
+          <th style="padding: 1rem;">ID</th>
+          <th style="padding: 1rem;">Nome do Evento</th>
+          <th style="padding: 1rem;">Data Início</th>
+          <th style="padding: 1rem;">Data Fim</th>
+          <th style="padding: 1rem; text-align: center;">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let evento of eventos">
+          <td style="padding: 1rem;">{{ evento.id }}</td>
+          <td style="padding: 1rem;">{{ evento.nome }}</td>
+          <td style="padding: 1rem;">{{ evento.dt_inicio }}</td>
+          <td style="padding: 1rem;">{{ evento.dt_fim }}</td>
+          <td style="padding: 1rem; text-align: center;">
+            <button class="btn btn-sm btn-outline-primary me-2" (click)="editarEvento(evento.id)">Editar</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="excluirEvento(evento.id)">Excluir</button>
+          </td>
+        </tr>
+        <tr *ngIf="eventos.length === 0">
+          <td colspan="5" class="text-center py-4 text-muted">
+            Nenhum evento encontrado no banco de dados.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

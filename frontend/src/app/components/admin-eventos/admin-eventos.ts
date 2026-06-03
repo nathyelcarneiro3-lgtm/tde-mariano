@@ -23,43 +23,35 @@ export class AdminEventosComponent implements OnInit {
     this.carregarEventos();
   }
 
- carregarEventos(): void {
+carregarEventos(): void {
+    console.log('--- Iniciando busca de eventos ---'); // Adicionado log
     this.eventoService.obterTodos().subscribe({
       next: (dados: any) => {
-         console.log('O que chegou do Python:', dados); // Para você ver no F12
-         
-         // Tenta pegar a lista de eventos de qualquer formato que o Python mandar
-         if (Array.isArray(dados)) {
-           this.eventos = dados; // Se for direto uma lista
-         } else if (dados && dados.eventos) {
-           this.eventos = dados.eventos; // Se vier dentro de uma chave "eventos"
-         } else if (dados && dados.data) {
-           this.eventos = dados.data; // Se vier dentro de uma chave "data"
-         } else {
-           // Se for um formato desconhecido, joga o objeto numa lista
-           this.eventos = [dados]; 
-         }
+         console.log('Dados recebidos do banco:', dados); // Isso vai confirmar se a lista vem vazia ou cheia
+         this.eventos = dados;
+         console.log('Lista de eventos no Angular:', this.eventos);
       },
       error: (erro: any) => {
-        console.error('Erro ao carregar eventos:', erro);
+        console.error('Erro na requisição:', erro);
       }
     });
   }
 
-  excluirEvento(id: number): void {
-    if (confirm('Tem certeza que deseja excluir este evento definitivamente?')) {
-      this.eventoService.excluir(id).subscribe({
-        next: () => {
-          alert('Evento excluído com sucesso!');
-          this.carregarEventos(); // Atualiza a tabela na mesma hora
-        },
-        error: (erro: any) => {
-          console.error('Erro ao excluir:', erro);
-          alert('Erro ao excluir o evento.');
-        }
-      });
-    }
+ excluirEvento(id: number): void {
+  if (confirm('Tem certeza que deseja excluir?')) {
+    this.eventoService.excluir(id).subscribe({
+      next: () => {
+        // Isso é o que faz a lista aparecer de novo imediatamente após apagar
+        this.carregarEventos(); 
+        alert('Evento excluído com sucesso!');
+      },
+      error: (erro: any) => {
+        console.error('Erro ao excluir:', erro);
+        alert('Erro ao excluir o evento.');
+      }
+    });
   }
+}
 
   editarEvento(id: number): void {
     this.router.navigate(['/cadastro-evento', id]);
