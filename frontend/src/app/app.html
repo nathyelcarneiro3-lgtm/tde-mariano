@@ -8,8 +8,14 @@
           <a class="nav-link" routerLink="/home" routerLinkActive="active">Início</a>
         </li>
         
+        <!-- Área Admin: só aparece se estiver logado -->
         <li class="nav-item me-2" *ngIf="usuarioEstaLogado()">
           <a class="nav-link text-warning fw-bold" routerLink="/admin" routerLinkActive="active">⚙️ Área Admin</a>
+        </li>
+
+        <!-- Link Usuários: só aparece para admins -->
+        <li class="nav-item me-2" *ngIf="usuarioEAdmin()">
+          <a class="nav-link text-info fw-bold" routerLink="/lista-usuarios" routerLinkActive="active">👥 Usuários</a>
         </li>
         
         <div *ngIf="!usuarioEstaLogado()">
@@ -23,7 +29,11 @@
           </button>
           
           <ul class="dropdown-menu" [class.show]="isDropdownOpen" style="position: absolute; right: 0;">
-            <li><a class="dropdown-item" routerLink="/editar-perfil" (click)="toggleDropdown()">Editar Perfil</a></li>
+            <li><a class="dropdown-item" routerLink="/editar-perfil" (click)="toggleDropdown()">✏️ Editar Perfil</a></li>
+            <!-- Item Gerenciar Usuários só para admin -->
+            <li *ngIf="usuarioEAdmin()">
+              <a class="dropdown-item" routerLink="/lista-usuarios" (click)="toggleDropdown()">👥 Gerenciar Usuários</a>
+            </li>
             <li><hr class="dropdown-divider"></li>
             <li><button class="dropdown-item text-danger" (click)="deslogar()">Deslogar</button></li>
           </ul>

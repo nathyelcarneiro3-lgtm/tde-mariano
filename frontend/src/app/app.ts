@@ -9,14 +9,20 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
   templateUrl: './app.html'
 })
 export class App {
-  // Variável para controlar se o menu está aberto ou fechado
   isDropdownOpen = false;
 
-   constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   usuarioEstaLogado(): boolean {
-     if (isPlatformBrowser(this.platformId)) {
+    if (isPlatformBrowser(this.platformId)) {
       return !!localStorage.getItem('token');
+    }
+    return false;
+  }
+
+  usuarioEAdmin(): boolean {
+    if (isPlatformBrowser(this.platformId)) {
+      return localStorage.getItem('usuarioAdmin') === '1';
     }
     return false;
   }
@@ -32,12 +38,14 @@ export class App {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.removeItem('token');
       localStorage.removeItem('usuarioNome');
-      this.isDropdownOpen = false; // Fecha o menu ao sair
+      localStorage.removeItem('usuarioId');
+      localStorage.removeItem('usuarioCpf');
+      localStorage.removeItem('usuarioAdmin');
+      this.isDropdownOpen = false;
       window.location.reload();
     }
   }
 
-  // Função que inverte o estado do menu ao clicar
   toggleDropdown() {
     this.isDropdownOpen = !this.isDropdownOpen;
   }

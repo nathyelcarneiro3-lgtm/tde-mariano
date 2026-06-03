@@ -1,6 +1,6 @@
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
@@ -37,14 +37,24 @@ export class UsuarioService {
     return this.http.post(`${this.apiUrl}/logar`, credenciais);
   }
 
-  // Req 2 - Alterar dados do usuário
-  atualizar(cpf: string, dados: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${cpf}`, dados, { headers: this.getHeaders() });
+  // Busca dados do usuário logado pelo token (usado após login)
+  obterPorToken(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/porToken`, { headers: this.getHeaders() });
   }
 
-  // Req 3 - Remover usuário (somente admin)
-  remover(cpf: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${cpf}`, { headers: this.getHeaders() });
+  // Req 2 - Alterar dados — usa ID (que o backend espera)
+  atualizar(id: number, dados: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, dados, { headers: this.getHeaders() });
+  }
+
+  // Req 3 - Remover usuário — usa ID
+  remover(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  // Req 4 - Promover usuário a administrador
+  promover(id: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/promover/${id}`, {}, { headers: this.getHeaders() });
   }
 
   // Req 5 - Listar todos os usuários
@@ -52,16 +62,24 @@ export class UsuarioService {
     return this.http.get(this.apiUrl, { headers: this.getHeaders() });
   }
 
-  // Buscar um usuário pelo CPF
-  buscarPorCpf(cpf: string): Observable<any> {
-    return this.http.get(`${this.apiUrl}/${cpf}`, { headers: this.getHeaders() });
+  // Buscar usuário pelo token (para preencher formulário de edição)
+  buscarPorToken(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/porToken`, { headers: this.getHeaders() });
   }
 
+  // Helpers de sessão
   isAdmin(): boolean {
     if (isPlatformBrowser(this.platformId)) {
       return localStorage.getItem('usuarioAdmin') === '1';
     }
     return false;
+  }
+
+  getIdLogado(): number {
+    if (isPlatformBrowser(this.platformId)) {
+      return Number(localStorage.getItem('usuarioId') || '0');
+    }
+    return 0;
   }
 
   getCpfLogado(): string {
