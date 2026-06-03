@@ -1,0 +1,102 @@
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="mb-4 text-center">
+        <h2 class="fw-bold mb-2">{{ isEdit ? 'Editar Minicurso' : 'Novo Minicurso' }}</h2>
+        <p class="text-muted">Preencha os dados do minicurso e do instrutor.</p>
+      </div>
+
+      <div *ngIf="carregando && isEdit" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p class="text-muted mt-2">Carregando...</p>
+      </div>
+
+      <div *ngIf="erroMsg" class="alert alert-danger rounded-3 mb-3"><strong>{{ erroMsg }}</strong></div>
+
+      <div class="card shadow-sm border-0" style="border-radius:16px" *ngIf="!carregando || !isEdit">
+        <div class="card-body p-4 p-md-5">
+          <form (ngSubmit)="f.form.valid && salvar()" #f="ngForm">
+
+            <div class="mb-4">
+              <label class="form-label fw-bold text-secondary small">Evento <span class="text-danger">*</span></label>
+              <select class="form-select form-select-lg bg-light border-0"
+                      [(ngModel)]="minicurso.id_evento" name="id_evento" required>
+                <option [ngValue]="null" disabled>Selecione um evento</option>
+                <option *ngFor="let e of eventos" [value]="e.id">{{ e.nome }}</option>
+              </select>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold text-secondary small">Nome do Minicurso <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-lg bg-light border-0"
+                     [(ngModel)]="minicurso.nome" name="nome" required placeholder="Ex: Python para Iniciantes">
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold text-secondary small">Descrição <span class="text-danger">*</span></label>
+              <textarea rows="3" class="form-control bg-light border-0"
+                        [(ngModel)]="minicurso.descricao" name="descricao" required></textarea>
+            </div>
+
+            <h5 class="fw-bold mt-4 mb-3">Dados do Instrutor</h5>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold text-secondary small">Nome do Instrutor <span class="text-danger">*</span></label>
+              <input type="text" class="form-control form-control-lg bg-light border-0"
+                     [(ngModel)]="minicurso.nome_instrutor" name="nome_instrutor" required>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold text-secondary small">Mini Currículo <span class="text-danger">*</span></label>
+              <textarea rows="2" class="form-control bg-light border-0"
+                        [(ngModel)]="minicurso.minicurriculo_instrutor" name="minicurriculo_instrutor" required
+                        placeholder="Breve descrição do instrutor..."></textarea>
+            </div>
+
+            <h5 class="fw-bold mt-4 mb-3">Data, Horário e Vagas</h5>
+
+            <div class="row mb-4">
+              <div class="col-md-4 mb-3 mb-md-0">
+                <label class="form-label fw-bold text-secondary small">Data <span class="text-danger">*</span></label>
+                <input type="date" class="form-control form-control-lg bg-light border-0"
+                       [(ngModel)]="minicurso.dt_minicurso" name="dt_minicurso" required>
+              </div>
+              <div class="col-md-4 mb-3 mb-md-0">
+                <label class="form-label fw-bold text-secondary small">Início <span class="text-danger">*</span></label>
+                <input type="time" class="form-control form-control-lg bg-light border-0"
+                       [(ngModel)]="minicurso.horario_inicio_minicurso" name="horario_inicio" required>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold text-secondary small">Fim <span class="text-danger">*</span></label>
+                <input type="time" class="form-control form-control-lg bg-light border-0"
+                       [(ngModel)]="minicurso.horario_fim_minicurso" name="horario_fim" required>
+              </div>
+            </div>
+
+            <div class="row mb-5">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <label class="form-label fw-bold text-secondary small">Limite de Inscrição <span class="text-danger">*</span></label>
+                <input type="date" class="form-control form-control-lg bg-light border-0"
+                       [(ngModel)]="minicurso.dt_limite_inscricao" name="dt_limite" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold text-secondary small">Nº de Vagas <span class="text-danger">*</span></label>
+                <input type="number" class="form-control form-control-lg bg-light border-0"
+                       [(ngModel)]="minicurso.numero_vagas" name="numero_vagas" required min="1" placeholder="Ex: 30">
+              </div>
+            </div>
+
+            <hr class="mb-4">
+            <div class="d-flex justify-content-end gap-3">
+              <button type="button" routerLink="/lista-minicursos" class="btn btn-light fw-bold px-4">Cancelar</button>
+              <button type="submit" class="btn btn-primary fw-bold px-4" [disabled]="f.invalid || carregando">
+                <span *ngIf="carregando" class="spinner-border spinner-border-sm me-1" role="status"></span>
+                {{ isEdit ? 'Guardar' : 'Cadastrar' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
