@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { EventoService } from '../../services/evento';
 
 @Component({
@@ -16,7 +18,13 @@ export class HomeComponent implements OnInit {
   termoBusca = '';
   carregando = false;
 
-  constructor(private eventoService: EventoService) {}
+  // Set com os ids dos eventos em que o usuário já está inscrito
+  inscritosNosEventos = new Set<number>();
+
+  constructor(
+    private eventoService: EventoService,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   ngOnInit(): void {
     this.carregando = true;
@@ -24,6 +32,10 @@ export class HomeComponent implements OnInit {
       next: (dados: any) => {
         this.eventos = Array.isArray(dados) ? dados : [];
         this.carregando = false;
+        // Só verifica inscrições se estiver logado
+        if (this.getIdUsuario()) {
+          this.verificarInscricoes();
+        }
       },
       error: (err: any) => {
         console.error('Erro ao procurar eventos:', err);
@@ -32,12 +44,46 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  private getIdUsuario(): number {
+    if (!isPlatformBrowser(this.platformId)) return 0;
+    return Number(localStorage.getItem('usuarioId') || '0');
+  }
+
+  // Para cada evento, busca os inscritos e verifica se o usuário está na lista
+  private verificarInscricoes(): void {
+    const idUsuario = this.getIdUsuario();
+    if (!idUsuario || this.eventos.length === 0) return;
+
+    // Cria um request por evento, ignorando erros individuais
+    const requests = this.eventos.map(e =>
+      this.eventoService.obterInscritosPorEvento(e.id).pipe(catchError(() => of([])))
+    );
+
+    forkJoin(requests).subscribe((respostas: any[]) => {
+      respostas.forEach((lista: any, i: number) => {
+        const inscritos = Array.isArray(lista) ? lista : (lista?.inscritos ?? lista?.data ?? []);
+        const jaInscrito = inscritos.some(
+          (ins: any) => Number(ins.id_usuario ?? ins.id) === idUsuario
+        );
+        if (jaInscrito) {
+          this.inscritosNosEventos.add(this.eventos[i].id);
+        }
+      });
+      // Força re-render do Set
+      this.inscritosNosEventos = new Set(this.inscritosNosEventos);
+    });
+  }
+
+  estaInscrito(idEvento: number): boolean {
+    return this.inscritosNosEventos.has(idEvento);
+  }
+
   get eventosFiltrados(): any[] {
     const t = this.termoBusca.trim().toLowerCase();
     if (!t) return this.eventos;
     return this.eventos.filter(e =>
-      (e.nome        || '').toLowerCase().includes(t) ||
-      (e.descricao   || '').toLowerCase().includes(t) ||
+      (e.nome             || '').toLowerCase().includes(t) ||
+      (e.descricao        || '').toLowerCase().includes(t) ||
       (e.nome_responsavel || '').toLowerCase().includes(t)
     );
   }

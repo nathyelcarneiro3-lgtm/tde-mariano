@@ -56,16 +56,12 @@
 <!-- ===== EVENTOS ===== -->
 <div *ngIf="!carregando">
 
-  <!-- Cabeçalho da seção -->
   <div class="section-header" *ngIf="eventosFiltrados.length > 0">
     <div class="section-line"></div>
-    <span class="section-title">
-      {{ termoBusca ? 'Resultados' : 'Todos os Eventos' }}
-    </span>
+    <span class="section-title">{{ termoBusca ? 'Resultados' : 'Todos os Eventos' }}</span>
     <div class="section-line"></div>
   </div>
 
-  <!-- Grid de cards -->
   <div class="row g-4 mb-5">
 
     <div class="col-md-6 col-lg-4" *ngFor="let evento of eventosFiltrados">
@@ -89,27 +85,28 @@
           <div class="card-meta mt-auto">
             <div class="card-meta-item">
               <span>🗓️</span>
-              <span>
-                <strong>Início:</strong> {{ formatarData(evento.dt_inicio) }}
-              </span>
+              <span><strong>Início:</strong> {{ formatarData(evento.dt_inicio) }}</span>
             </div>
             <div class="card-meta-item">
               <span>⏳</span>
-              <span>
-                <strong>Inscrições até:</strong> {{ formatarData(evento.dt_limite_inscricao) }}
-              </span>
+              <span><strong>Inscrições até:</strong> {{ formatarData(evento.dt_limite_inscricao) }}</span>
             </div>
             <div class="card-meta-item">
               <span>🪑</span>
-              <span>
-                <strong>{{ evento.numero_vagas }}</strong> vagas disponíveis
-              </span>
+              <span><strong>{{ evento.numero_vagas }}</strong> vagas disponíveis</span>
             </div>
           </div>
 
-          <!-- Botão -->
-          <a class="btn-inscrever mt-3" [routerLink]="['/inscricao-evento', evento.id]">
-            🎟️ Inscrever-me
+          <!-- Botão: muda conforme status de inscrição -->
+          <a class="btn-inscrever mt-3"
+             [class.btn-inscrito]="estaInscrito(evento.id)"
+             [routerLink]="['/inscricao-evento', evento.id]">
+            <ng-container *ngIf="estaInscrito(evento.id); else naoInscrito">
+              ✅ Inscrito
+            </ng-container>
+            <ng-template #naoInscrito>
+              🎟️ Inscrever-me
+            </ng-template>
           </a>
 
         </div>
@@ -122,9 +119,7 @@
         <span class="empty-icon">🔍</span>
         <p class="empty-title">Nenhum evento encontrado para "{{ termoBusca }}"</p>
         <p class="empty-sub">Tente pesquisar com outras palavras.</p>
-        <button class="btn btn-sm btn-outline-secondary mt-3" (click)="limparBusca()">
-          Limpar busca
-        </button>
+        <button class="btn btn-sm btn-outline-secondary mt-3" (click)="limparBusca()">Limpar busca</button>
       </div>
     </div>
 
