@@ -7,7 +7,15 @@
         <p class="text-muted">Preencha as informações do evento e do responsável.</p>
       </div>
 
-      <div class="card shadow-sm border-0" style="border-radius: 16px;">
+      <!-- Spinner enquanto carrega dados para edição -->
+      <div *ngIf="carregando && isEdit" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Carregando...</span>
+        </div>
+        <p class="text-muted mt-2">Carregando dados do evento...</p>
+      </div>
+
+      <div class="card shadow-sm border-0" style="border-radius: 16px;" *ngIf="!carregando || !isEdit">
         <div class="card-body p-4 p-md-5">
           
           <form (ngSubmit)="formEvento.form.valid && salvar()" #formEvento="ngForm">
@@ -50,14 +58,16 @@
 
             <div class="row mb-4">
               <div class="col-md-6 mb-3 mb-md-0">
+                <!-- FIX: [(ngModel)] usa dt_inicio (igual ao campo do backend) -->
                 <label class="form-label fw-bold text-secondary small">Início (Data) <span class="text-danger">*</span></label>
                 <input type="date" class="form-control form-control-lg bg-light border-0" 
-                       [(ngModel)]="evento.data_inicio" name="dt_inicio" required>
+                       [(ngModel)]="evento.dt_inicio" name="dt_inicio" required>
               </div>
               <div class="col-md-6">
+                <!-- FIX: [(ngModel)] usa dt_fim (igual ao campo do backend) -->
                 <label class="form-label fw-bold text-secondary small">Fim (Data) <span class="text-danger">*</span></label>
                 <input type="date" class="form-control form-control-lg bg-light border-0" 
-                       [(ngModel)]="evento.data_fim" name="dt_fim" required>
+                       [(ngModel)]="evento.dt_fim" name="dt_fim" required>
               </div>
             </div>
 
@@ -77,12 +87,13 @@
             <hr class="mb-4">
 
             <div class="d-flex justify-content-end gap-3">
-              <button type="button" routerLink="/admin-eventos" class="btn btn-light fw-bold px-4">
+              <button type="button" routerLink="/admin" class="btn btn-light fw-bold px-4">
                 Cancelar
               </button>
               
               <button type="submit" class="btn btn-primary fw-bold shadow-sm px-4" 
-                      [disabled]="formEvento.invalid">
+                      [disabled]="formEvento.invalid || carregando">
+                <span *ngIf="carregando" class="spinner-border spinner-border-sm me-1" role="status"></span>
                 {{ isEdit ? 'Guardar Alterações' : 'Salvar Evento' }}
               </button>
             </div>

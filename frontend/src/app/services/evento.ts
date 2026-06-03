@@ -8,45 +8,33 @@ export class EventoService {
 
   constructor(private http: HttpClient) {}
 
- obterTodos(): Observable<any> {
-    // 1. Pega o token salvo no navegador
+  private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token') || '';
-    
-    // 2. Coloca o token no cabeçalho de Autorização
-    const headers = new HttpHeaders({ 
+    return new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': token 
+      'Authorization': token
     });
-
-    // 3. Envia o GET junto com o cabeçalho
-    return this.http.get(this.apiUrl, { headers });
   }
 
-  // 👇 É ESTA A FUNÇÃO QUE O ANGULAR ESTÁ A PROCURAR 👇
+  obterTodos(): Observable<any> {
+    return this.http.get(this.apiUrl, { headers: this.getHeaders() });
+  }
+
   cadastrar(evento: any): Observable<any> {
-    const token = localStorage.getItem('token') || '';
-    
-    const headers = new HttpHeaders({ 
-      'Content-Type': 'application/json',
-      'Authorization': token 
-    });
-
-    return this.http.post(this.apiUrl, evento, { headers });
+    return this.http.post(this.apiUrl, evento, { headers: this.getHeaders() });
   }
+
   excluir(id: number): Observable<any> {
-    const token = localStorage.getItem('token') || '';
-    const headers = new HttpHeaders({ 
-      'Content-Type': 'application/json',
-      'Authorization': token 
-    });
-
-    return this.http.delete(`${this.apiUrl}/${id}`, { headers });
-  }
-obterPorId(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
   }
 
+  // FIX: adicionado token no header (antes estava sem Authorization)
+  obterPorId(id: number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  // FIX: adicionado token no header (antes estava sem Authorization)
   atualizar(id: number, evento: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, evento);
+    return this.http.put<any>(`${this.apiUrl}/${id}`, evento, { headers: this.getHeaders() });
   }
 }
