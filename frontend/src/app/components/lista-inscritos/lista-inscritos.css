@@ -1,0 +1,16 @@
+.btn-outline-secondary {
+  border-color: #334155 !important;
+  color: var(--cor-texto-secundario) !important;
+}
+.btn-outline-secondary:hover {
+  background-color: #1e293b !important;
+  color: var(--cor-texto-principal) !important;
+}
+.table thead th {
+  background-color: #0b1120 !important;
+  color: var(--cor-destaque-dourado) !important;
+  border-bottom: 2px solid rgba(212, 175, 55, 0.3) !important;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}

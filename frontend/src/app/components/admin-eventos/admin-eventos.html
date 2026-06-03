@@ -4,7 +4,6 @@
       <h2 class="fw-bold text-dark mb-0">Gerenciar Eventos</h2>
       <p class="text-muted small mb-0">Crie, edite ou remova eventos do sistema.</p>
     </div>
-
     <div class="d-flex gap-2">
       <button class="btn btn-outline-secondary" (click)="carregarEventos()" [disabled]="carregando">
         <span *ngIf="carregando" class="spinner-border spinner-border-sm me-1" role="status"></span>
@@ -53,8 +52,16 @@
           <td style="padding: 1rem;">{{ evento.dt_fim_fmt }}</td>
           <td style="padding: 1rem;">{{ evento.numero_vagas ?? '—' }}</td>
           <td style="padding: 1rem; text-align: center;">
-            <button class="btn btn-sm btn-outline-primary me-2" (click)="editarEvento(evento.id)">Editar</button>
-            <button class="btn btn-sm btn-outline-danger" (click)="excluirEvento(evento.id)">Excluir</button>
+            <button class="btn btn-sm btn-outline-info me-1" (click)="verInscritos(evento)"
+                    title="Ver participantes inscritos">
+              👥 Inscritos
+            </button>
+            <button class="btn btn-sm btn-outline-primary me-1" (click)="editarEvento(evento.id)">
+              ✏️ Editar
+            </button>
+            <button class="btn btn-sm btn-outline-danger" (click)="excluirEvento(evento.id)">
+              🗑️ Excluir
+            </button>
           </td>
         </tr>
 

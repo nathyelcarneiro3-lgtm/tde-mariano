@@ -1,5 +1,104 @@
-<p>lista-inscritos works!</p>
-<div class="container mt-5">
-  <h2>Lista de Inscritos</h2>
-  <p>Página em construção...</p>
+<!-- Carregando -->
+<div *ngIf="carregando" class="text-center py-5">
+  <div class="spinner-border" style="color: var(--cor-destaque-dourado);" role="status"></div>
+  <p class="mt-3" style="color: var(--cor-texto-secundario);">Carregando participantes...</p>
+</div>
+
+<div *ngIf="!carregando">
+
+  <!-- Cabeçalho -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+      <h2 class="fw-bold mb-1" style="color: var(--cor-texto-principal);">
+        👥 Participantes Inscritos
+      </h2>
+      <p class="mb-0 small" style="color: var(--cor-texto-secundario);">
+        <span *ngIf="nomeEvento">Evento: <strong class="text-white">{{ nomeEvento }}</strong> &nbsp;·&nbsp;</span>
+        ID do Evento: <strong class="text-white">{{ idEvento }}</strong>
+      </p>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary btn-sm" (click)="carregarInscritos()">
+        🔄 Atualizar
+      </button>
+      <button class="btn btn-outline-secondary btn-sm" (click)="voltar()">
+        ← Voltar aos Eventos
+      </button>
+    </div>
+  </div>
+
+  <!-- Alertas -->
+  <div *ngIf="erroMsg" class="alert alert-danger rounded-3 mb-4">{{ erroMsg }}</div>
+  <div *ngIf="sucessoMsg" class="alert alert-success rounded-3 mb-4">{{ sucessoMsg }}</div>
+
+  <!-- Barra de busca + contador -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3 gap-2">
+    <input
+      type="text"
+      class="form-control"
+      style="max-width: 340px;"
+      placeholder="🔍 Buscar por nome, CPF ou e-mail..."
+      [(ngModel)]="termoBusca"
+    />
+    <span class="small" style="color: var(--cor-texto-secundario); white-space: nowrap;">
+      {{ inscritosFiltrados.length }} participante(s)
+      <span *ngIf="termoBusca"> encontrado(s)</span>
+      <span *ngIf="!termoBusca"> inscrito(s)</span>
+    </span>
+  </div>
+
+  <!-- Tabela -->
+  <div class="table-responsive rounded-3 shadow-sm" style="border: 1px solid rgba(255,255,255,0.08);">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th style="padding: 1rem;">#</th>
+          <th style="padding: 1rem;">Nome</th>
+          <th style="padding: 1rem;">CPF</th>
+          <th style="padding: 1rem;">E-mail</th>
+          <th style="padding: 1rem; text-align: center;">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr *ngFor="let inscrito of inscritosFiltrados; let i = index">
+          <td style="padding: 1rem; color: var(--cor-texto-secundario);">{{ i + 1 }}</td>
+          <td style="padding: 1rem; font-weight: 500;">{{ inscrito.nome || '—' }}</td>
+          <td style="padding: 1rem;">
+            <code style="color: var(--cor-destaque-dourado); font-size: 0.85rem;">
+              {{ inscrito.cpf || '—' }}
+            </code>
+          </td>
+          <td style="padding: 1rem; color: var(--cor-texto-secundario);">{{ inscrito.email || '—' }}</td>
+          <td style="padding: 1rem; text-align: center;">
+            <button
+              class="btn btn-sm btn-outline-danger"
+              (click)="removerInscricao(inscrito.id, inscrito.nome)"
+              [disabled]="removendo === inscrito.id">
+              <span *ngIf="removendo === inscrito.id"
+                    class="spinner-border spinner-border-sm me-1" role="status"></span>
+              {{ removendo === inscrito.id ? 'Removendo...' : 'Remover' }}
+            </button>
+          </td>
+        </tr>
+
+        <!-- Nenhum resultado na busca -->
+        <tr *ngIf="inscritos.length > 0 && inscritosFiltrados.length === 0">
+          <td colspan="5" class="text-center py-4" style="color: var(--cor-texto-secundario);">
+            Nenhum participante encontrado para "<strong>{{ termoBusca }}</strong>".
+          </td>
+        </tr>
+
+        <!-- Lista vazia -->
+        <tr *ngIf="inscritos.length === 0">
+          <td colspan="5" class="text-center py-5">
+            <div style="font-size: 3rem; opacity: 0.2; margin-bottom: 12px;">👤</div>
+            <p style="color: var(--cor-texto-secundario);">Nenhum participante inscrito neste evento.</p>
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
 </div>

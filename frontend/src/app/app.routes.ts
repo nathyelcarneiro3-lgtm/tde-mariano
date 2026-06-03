@@ -24,14 +24,16 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'registo', component: CadastroUsuarioComponent },
 
-  // Rotas de usuário (Req 2 - editar perfil, aceita ?cpf=xxx para admin editar outro)
+  // Rotas de usuário
   { path: 'editar-perfil', component: EditarPerfilComponent },
 
   // Rotas de administração
   { path: 'admin', component: AdminEventosComponent },
   { path: 'cadastro-evento', component: CadastroEventoComponent },
   { path: 'cadastro-evento/:id', component: CadastroEventoComponent },
-  { path: 'lista-inscritos', component: ListaInscritosComponent },
+
+  // Req 12 - listar participantes de um evento (admin)
+  { path: 'lista-inscritos/:id', component: ListaInscritosComponent },
 
   // Req 3 e 5 - gerenciar usuários (somente admin)
   { path: 'lista-usuarios', component: ListaUsuariosComponent },

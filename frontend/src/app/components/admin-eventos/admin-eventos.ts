@@ -31,11 +31,9 @@ export class AdminEventosComponent implements OnInit {
 
     this.eventoService.obterTodos().subscribe({
       next: (dados: any) => {
-        // Backend retorna array direto: [{id, nome, dt_inicio, dt_fim, ...}, ...]
         const lista = Array.isArray(dados) ? dados : (dados?.eventos ?? dados?.data ?? []);
         this.eventos = lista.map((e: any) => ({
           ...e,
-          // Formata datas para exibição (o banco retorna strings como "2026-05-01")
           dt_inicio_fmt: this.formatarData(e.dt_inicio),
           dt_fim_fmt:    this.formatarData(e.dt_fim)
         }));
@@ -56,40 +54,24 @@ export class AdminEventosComponent implements OnInit {
   }
 
   private formatarData(valor: string): string {
-  if (!valor) return '—';
-
-  // Remove qualquer espaço extra nas pontas da string
-  let str = valor.trim();
-
-  // Caso 1: Trata o bug da data com hora injetada no meio (ex: "20 00:00:00/06/2026")
-  if (str.includes('/') && str.includes(':')) {
-    // Transforma "20 00:00:00/06/2026" em ["20", "00:00:00/06/2026"] -> pega o "20" como dia
-    const parteDia = str.split(' ')[0]; 
-    // Isola o restante após a hora (ex: "/06/2026")
-    const restante = str.split('/')[1] + '/' + str.split('/')[2]; 
-    return `${parteDia}/${restante}`; // Retorna "20/06/2026"
+    if (!valor) return '—';
+    let str = valor.trim();
+    if (str.includes('/') && str.includes(':')) {
+      const parteDia = str.split(' ')[0];
+      const restante = str.split('/')[1] + '/' + str.split('/')[2];
+      return `${parteDia}/${restante}`;
+    }
+    const apenasData = str.split('T')[0].split(' ')[0];
+    if (apenasData.includes('-')) {
+      const [ano, mes, dia] = apenasData.split('-');
+      return `${dia}/${mes}/${ano}`;
+    }
+    if (apenasData.includes('/')) return apenasData;
+    return valor;
   }
-
-  // Caso 2: Se vier no formato internacional limpo (ex: "2026-06-20 00:00:00" ou com "T")
-  const apenasData = str.split('T')[0].split(' ')[0];
-  
-  if (apenasData.includes('-')) {
-    const [ano, mes, dia] = apenasData.split('-');
-    return `${dia}/${mes}/${ano}`;
-  }
-
-  // Caso 3: Se a API já mandar a data perfeitamente formatada em PT-BR (ex: "20/06/2026")
-  if (apenasData.includes('/')) {
-    return apenasData;
-  }
-
-  return valor; // Retorno de segurança caso não entre em nenhuma regra
-}
-
 
   excluirEvento(id: number): void {
     if (!confirm('Tem certeza que deseja excluir este evento?')) return;
-
     this.eventoService.excluir(id).subscribe({
       next: () => {
         alert('Evento excluído com sucesso!');
@@ -105,5 +87,11 @@ export class AdminEventosComponent implements OnInit {
 
   editarEvento(id: number): void {
     this.router.navigate(['/cadastro-evento', id]);
+  }
+
+  verInscritos(evento: any): void {
+    this.router.navigate(['/lista-inscritos', evento.id], {
+      state: { nomeEvento: evento.nome }
+    });
   }
 }
