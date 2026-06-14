@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -21,10 +21,8 @@ export class ListaPalestrasComponent implements OnInit {
   erroMsg = '';
   isAdmin = false;
 
-  // Filtro por busca de texto
   termoBusca = '';
 
-  // Modal de confirmação de remoção
   palestraParaRemover: any = null;
   removendo = false;
 
@@ -33,6 +31,7 @@ export class ListaPalestrasComponent implements OnInit {
     private eventoService: EventoService,
     private usuarioService: UsuarioService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -47,9 +46,13 @@ export class ListaPalestrasComponent implements OnInit {
       next: (dados: any) => {
         const lista = Array.isArray(dados) ? dados : [];
         lista.forEach((e: any) => this.eventos.set(Number(e.id), e.nome));
+        this.cdr.detectChanges();
         this.carregar();
       },
-      error: () => this.carregar()
+      error: () => {
+        this.cdr.detectChanges();
+        this.carregar();
+      }
     });
   }
 
@@ -66,10 +69,12 @@ export class ListaPalestrasComponent implements OnInit {
         }));
         this.aplicarFiltro();
         this.carregando = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao carregar palestras.';
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -100,7 +105,6 @@ export class ListaPalestrasComponent implements OnInit {
 
   fmtHorario(h: string): string {
     if (!h) return '—';
-    // Garante formato HH:MM
     if (h.includes(':')) return h.substring(0, 5);
     return h;
   }
@@ -124,12 +128,14 @@ export class ListaPalestrasComponent implements OnInit {
       next: () => {
         this.removendo = false;
         this.palestraParaRemover = null;
+        this.cdr.detectChanges();
         this.carregar();
       },
       error: (err: any) => {
         this.removendo = false;
         this.erroMsg = err?.error?.msg || 'Erro ao remover palestra.';
         this.palestraParaRemover = null;
+        this.cdr.detectChanges();
       }
     });
   }

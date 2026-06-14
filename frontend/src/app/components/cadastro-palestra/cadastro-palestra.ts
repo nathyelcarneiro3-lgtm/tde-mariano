@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -36,6 +36,7 @@ export class CadastroPalestraComponent implements OnInit {
     private eventoService: EventoService,
     private router: Router,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -45,8 +46,14 @@ export class CadastroPalestraComponent implements OnInit {
     if (localStorage.getItem('usuarioAdmin') !== '1') { this.router.navigate(['/home']); return; }
 
     this.eventoService.obterTodos().subscribe({
-      next: (dados: any) => { this.eventos = Array.isArray(dados) ? dados : []; },
-      error: () => { this.eventos = []; }
+      next: (dados: any) => {
+        this.eventos = Array.isArray(dados) ? dados : [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.eventos = [];
+        this.cdr.detectChanges();
+      }
     });
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -57,7 +64,6 @@ export class CadastroPalestraComponent implements OnInit {
     }
   }
 
-  // "2026-06-10 00:00:00" ou "10/06/2026" → "2026-06-10" (para <input type="date">)
   private paraInput(v: string): string {
     if (!v) return '';
     const s = v.split('T')[0].split(' ')[0].trim();
@@ -68,7 +74,6 @@ export class CadastroPalestraComponent implements OnInit {
     return s;
   }
 
-  // "2026-06-10" → "10/06/2026" (exigido pelo backend)
   private paraEnvio(v: string): string {
     if (!v) return '';
     const s = v.split(' ')[0].trim();
@@ -94,10 +99,12 @@ export class CadastroPalestraComponent implements OnInit {
           minicurriculo_palestrante: res.minicurriculo_palestrante || ''
         };
         this.carregando = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao carregar palestra.';
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -118,12 +125,14 @@ export class CadastroPalestraComponent implements OnInit {
     acao.subscribe({
       next: () => {
         this.salvando = false;
+        this.cdr.detectChanges();
         alert(this.isEdit ? 'Palestra atualizada com sucesso!' : 'Palestra cadastrada com sucesso!');
         this.router.navigate(['/lista-palestras']);
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao salvar palestra.';
         this.salvando = false;
+        this.cdr.detectChanges();
       }
     });
   }

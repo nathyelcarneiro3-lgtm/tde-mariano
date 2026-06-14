@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { EventoService } from '../../services/evento';
@@ -18,6 +18,7 @@ export class AdminEventosComponent implements OnInit {
   constructor(
     private eventoService: EventoService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -38,6 +39,7 @@ export class AdminEventosComponent implements OnInit {
           dt_fim_fmt:    this.formatarData(e.dt_fim)
         }));
         this.carregando = false;
+        this.cdr.detectChanges();
       },
       error: (erro: any) => {
         this.carregando = false;
@@ -48,6 +50,7 @@ export class AdminEventosComponent implements OnInit {
         } else {
           this.erroMsg = erro?.error?.msg || 'Erro ao carregar eventos.';
         }
+        this.cdr.detectChanges();
         console.error('Erro ao carregar eventos:', erro);
       }
     });

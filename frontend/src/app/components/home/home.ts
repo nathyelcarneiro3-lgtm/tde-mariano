@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -18,11 +18,11 @@ export class HomeComponent implements OnInit {
   termoBusca = '';
   carregando = false;
 
-  // Set com os ids dos eventos em que o usuário já está inscrito
   inscritosNosEventos = new Set<number>();
 
   constructor(
     private eventoService: EventoService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit {
       next: (dados: any) => {
         this.eventos = Array.isArray(dados) ? dados : [];
         this.carregando = false;
-        // Só verifica inscrições se estiver logado
+        this.cdr.detectChanges();
         if (this.getIdUsuario()) {
           this.verificarInscricoes();
         }
@@ -40,6 +40,7 @@ export class HomeComponent implements OnInit {
       error: (err: any) => {
         console.error('Erro ao procurar eventos:', err);
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -49,12 +50,10 @@ export class HomeComponent implements OnInit {
     return Number(localStorage.getItem('usuarioId') || '0');
   }
 
-  // Para cada evento, busca os inscritos e verifica se o usuário está na lista
   private verificarInscricoes(): void {
     const idUsuario = this.getIdUsuario();
     if (!idUsuario || this.eventos.length === 0) return;
 
-    // Cria um request por evento, ignorando erros individuais
     const requests = this.eventos.map(e =>
       this.eventoService.obterInscritosPorEvento(e.id).pipe(catchError(() => of([])))
     );
@@ -69,8 +68,8 @@ export class HomeComponent implements OnInit {
           this.inscritosNosEventos.add(this.eventos[i].id);
         }
       });
-      // Força re-render do Set
       this.inscritosNosEventos = new Set(this.inscritosNosEventos);
+      this.cdr.detectChanges();
     });
   }
 

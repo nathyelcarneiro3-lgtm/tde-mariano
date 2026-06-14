@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EventoService } from '../../services/evento';
@@ -19,12 +19,10 @@ export class InscricaoEventoComponent implements OnInit {
   sucessoMsg = '';
   jaInscrito = false;
 
-  // Programação (Req 25)
   palestras: any[] = [];
   minicursos: any[] = [];
   carregandoProgramacao = false;
 
-  // Inscrição em minicurso (Req 17)
   inscrevendoMinicurso: number | null = null;
   erroMinicurso = '';
   sucessoMinicurso = '';
@@ -34,6 +32,7 @@ export class InscricaoEventoComponent implements OnInit {
     private router: Router,
     private eventoService: EventoService,
     private minicursoService: MinicursoService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -64,17 +63,18 @@ export class InscricaoEventoComponent implements OnInit {
       next: (dados: any) => {
         this.evento = dados;
         this.carregando = false;
+        this.cdr.detectChanges();
         this.verificarSeJaInscrito(id);
         this.carregarProgramacao(id);
       },
       error: (err: any) => {
         this.carregando = false;
         this.erroMsg = err?.error?.msg || 'Erro ao carregar dados do evento.';
+        this.cdr.detectChanges();
       }
     });
   }
 
-  // Req 25 — carrega palestras e minicursos do evento
   carregarProgramacao(idEvento: number): void {
     this.carregandoProgramacao = true;
     this.eventoService.obterProgramacao(idEvento).subscribe({
@@ -82,8 +82,12 @@ export class InscricaoEventoComponent implements OnInit {
         this.palestras  = Array.isArray(dados?.palestras)  ? dados.palestras  : [];
         this.minicursos = Array.isArray(dados?.minicursos) ? dados.minicursos : [];
         this.carregandoProgramacao = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.carregandoProgramacao = false; }
+      error: () => {
+        this.carregandoProgramacao = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -93,8 +97,12 @@ export class InscricaoEventoComponent implements OnInit {
       next: (lista: any) => {
         const inscritos = Array.isArray(lista) ? lista : (lista?.inscritos ?? lista?.data ?? []);
         this.jaInscrito = inscritos.some((i: any) => Number(i.id_usuario ?? i.id) === idUsuario);
+        this.cdr.detectChanges();
       },
-      error: () => { this.jaInscrito = false; }
+      error: () => {
+        this.jaInscrito = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -110,15 +118,16 @@ export class InscricaoEventoComponent implements OnInit {
         this.inscrevendo = false;
         this.sucessoMsg = resp?.msg || 'Inscrição realizada com sucesso! 🎉';
         this.jaInscrito = true;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.inscrevendo = false;
         this.erroMsg = err?.error?.msg || 'Erro ao realizar inscrição. Tente novamente.';
+        this.cdr.detectChanges();
       }
     });
   }
 
-  // Req 17 — inscrição em minicurso (só disponível se inscrito no evento)
   inscreverMinicurso(m: any): void {
     if (!this.jaInscrito) {
       this.erroMinicurso = 'Você precisa estar inscrito no evento antes de se inscrever em um minicurso.';
@@ -133,10 +142,12 @@ export class InscricaoEventoComponent implements OnInit {
       next: (resp: any) => {
         this.inscrevendoMinicurso = null;
         this.sucessoMinicurso = `✅ Inscrito em "${m.nome}" com sucesso!`;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.inscrevendoMinicurso = null;
         this.erroMinicurso = err?.error?.msg || 'Erro ao se inscrever no minicurso.';
+        this.cdr.detectChanges();
       }
     });
   }

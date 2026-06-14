@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -37,6 +37,7 @@ export class CadastroMinicursoComponent implements OnInit {
     private eventoService: EventoService,
     private router: Router,
     private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -46,8 +47,14 @@ export class CadastroMinicursoComponent implements OnInit {
     if (localStorage.getItem('usuarioAdmin') !== '1') { this.router.navigate(['/home']); return; }
 
     this.eventoService.obterTodos().subscribe({
-      next: (dados: any) => { this.eventos = Array.isArray(dados) ? dados : []; },
-      error: () => { this.eventos = []; }
+      next: (dados: any) => {
+        this.eventos = Array.isArray(dados) ? dados : [];
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.eventos = [];
+        this.cdr.detectChanges();
+      }
     });
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -58,11 +65,9 @@ export class CadastroMinicursoComponent implements OnInit {
     }
   }
 
-  // "2026-06-10 00:00:00" ou "2026-06-10T..." → "2026-06-10" (para o <input type="date">)
   private paraInput(v: string): string {
     if (!v) return '';
     const s = v.split('T')[0].split(' ')[0].trim();
-    // Se vier DD/MM/YYYY do banco, inverte para YYYY-MM-DD
     if (s.includes('/')) {
       const [d, m, a] = s.split('/');
       return `${a}-${m}-${d}`;
@@ -70,7 +75,6 @@ export class CadastroMinicursoComponent implements OnInit {
     return s;
   }
 
-  // "2026-06-10" (do <input type="date">) → "10/06/2026" (que o backend exige)
   private paraEnvio(v: string): string {
     if (!v) return '';
     const s = v.split(' ')[0].trim();
@@ -98,10 +102,12 @@ export class CadastroMinicursoComponent implements OnInit {
           numero_vagas:             res.vagas_disponiveis ?? res.numero_vagas ?? null
         };
         this.carregando = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao carregar minicurso.';
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -110,7 +116,6 @@ export class CadastroMinicursoComponent implements OnInit {
     this.erroMsg = '';
     this.carregando = true;
 
-    // Converte YYYY-MM-DD → DD/MM/YYYY antes de enviar ao backend
     const payload = {
       ...this.minicurso,
       dt_minicurso:        this.paraEnvio(this.minicurso.dt_minicurso),
@@ -123,12 +128,15 @@ export class CadastroMinicursoComponent implements OnInit {
 
     acao.subscribe({
       next: () => {
+        this.carregando = false;
+        this.cdr.detectChanges();
         alert(this.isEdit ? 'Minicurso atualizado com sucesso!' : 'Minicurso cadastrado com sucesso!');
         this.router.navigate(['/lista-minicursos']);
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao salvar minicurso.';
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }

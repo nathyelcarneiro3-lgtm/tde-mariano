@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -28,6 +28,7 @@ export class ListaInscritosMinicursoComponent implements OnInit {
     private usuarioService: UsuarioService,
     private route: ActivatedRoute,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -48,10 +49,12 @@ export class ListaInscritosMinicursoComponent implements OnInit {
       next: (dados: any) => {
         this.inscritos = Array.isArray(dados) ? dados : [];
         this.carregando = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao carregar inscritos.';
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -75,11 +78,13 @@ export class ListaInscritosMinicursoComponent implements OnInit {
       next: (resp: any) => {
         this.removendo = null;
         this.sucessoMsg = resp?.msg || 'Inscrição removida com sucesso.';
+        this.cdr.detectChanges();
         this.carregar();
       },
       error: (err: any) => {
         this.removendo = null;
         this.erroMsg = err?.error?.msg || 'Erro ao remover inscrição.';
+        this.cdr.detectChanges();
       }
     });
   }

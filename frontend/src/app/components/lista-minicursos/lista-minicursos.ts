@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -22,7 +22,6 @@ export class ListaMinicursosComponent implements OnInit {
   removendo: number | null = null;
   inscrevendo: number | null = null;
 
-  // Filtro por evento
   filtroIdEvento: number | null = null;
   get minicursosFiltrados(): any[] {
     if (!this.filtroIdEvento) return this.minicursos;
@@ -41,6 +40,7 @@ export class ListaMinicursosComponent implements OnInit {
     private minicursoService: MinicursoService,
     private usuarioService: UsuarioService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -65,10 +65,12 @@ export class ListaMinicursosComponent implements OnInit {
           inscricaoEncerrada: this.inscricaoEncerrada(m.dt_limite_inscricao)
         }));
         this.carregando = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao carregar minicursos.';
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -102,11 +104,13 @@ export class ListaMinicursosComponent implements OnInit {
       next: (resp: any) => {
         this.inscrevendo = null;
         this.sucessoMsg = resp?.msg || 'Inscrição realizada com sucesso! 🎉';
+        this.cdr.detectChanges();
         this.carregar();
       },
       error: (err: any) => {
         this.inscrevendo = null;
         this.erroMsg = err?.error?.msg || 'Erro ao realizar inscrição.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -119,11 +123,13 @@ export class ListaMinicursosComponent implements OnInit {
       next: (resp: any) => {
         this.removendo = null;
         this.sucessoMsg = resp?.msg || 'Minicurso removido com sucesso.';
+        this.cdr.detectChanges();
         this.carregar();
       },
       error: (err: any) => {
         this.removendo = null;
         this.erroMsg = err?.error?.msg || 'Erro ao remover minicurso.';
+        this.cdr.detectChanges();
       }
     });
   }

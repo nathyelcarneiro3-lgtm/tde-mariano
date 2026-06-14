@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -33,7 +33,8 @@ export class CadastroEventoComponent implements OnInit {
   constructor(
     private eventoService: EventoService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -45,37 +46,25 @@ export class CadastroEventoComponent implements OnInit {
     }
   }
 
-  // Transforma o que vem da API para o formato "yyyy-MM-dd" que o <input type="date"> exige
-private formatarParaInput(valor: string): string {
-  if (!valor) return '';
-  
-  // Limpa espaços extras e remove qualquer parte de hora que venha após espaço ou T
-  // Transforma "2026-06-20 00:00:00" ou "2026-06-20T00:00:00" apenas em "2026-06-20"
-  let dataLimpa = valor.split('T')[0].split(' ')[0].trim();
-
-  // Caso a API retorne no formato DD/MM/AAAA, converte para AAAA-MM-DD
-  if (dataLimpa.includes('/')) {
-    const partes = dataLimpa.split('/');
-    if (partes.length === 3) {
-      return `${partes[2]}-${partes[1]}-${partes[0]}`;
+  private formatarParaInput(valor: string): string {
+    if (!valor) return '';
+    let dataLimpa = valor.split('T')[0].split(' ')[0].trim();
+    if (dataLimpa.includes('/')) {
+      const partes = dataLimpa.split('/');
+      if (partes.length === 3) {
+        return `${partes[2]}-${partes[1]}-${partes[0]}`;
+      }
     }
+    return dataLimpa;
   }
 
-  return dataLimpa;
-}
-
-// Transforma o formato do <input type="date"> ("yyyy-MM-dd") para o formato da sua API ("dd/mm/yyyy")
-private formatarParaEnvio(data: string): string {
-  if (!data) return '';
-  
-  // Garante que estamos pegando apenas a data limpa antes de inverter
-  const dataLimpa = data.split(' ')[0].trim();
-  const partes = dataLimpa.split('-'); 
-  
-  if (partes.length !== 3) return dataLimpa;
-  return `${partes[2]}/${partes[1]}/${partes[0]}`; // Inverte para DD/MM/AAAA
-}
-
+  private formatarParaEnvio(data: string): string {
+    if (!data) return '';
+    const dataLimpa = data.split(' ')[0].trim();
+    const partes = dataLimpa.split('-');
+    if (partes.length !== 3) return dataLimpa;
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+  }
 
   carregarEvento(): void {
     this.carregando = true;
@@ -95,11 +84,13 @@ private formatarParaEnvio(data: string): string {
           email_responsavel: res.email_responsavel || ''
         };
         this.carregando = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         console.error('Erro ao carregar evento:', err);
         this.erroMsg = err?.error?.msg || 'Erro ao carregar dados do evento.';
         this.carregando = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -108,7 +99,6 @@ private formatarParaEnvio(data: string): string {
     this.erroMsg = '';
     this.carregando = true;
 
-    // Cria um payload clonado aplicando a máscara DD/MM/AAAA para submeter à API
     const payload = {
       ...this.evento,
       dt_inicio:           this.formatarParaEnvio(this.evento.dt_inicio),
@@ -119,6 +109,8 @@ private formatarParaEnvio(data: string): string {
     if (this.isEdit) {
       this.eventoService.atualizar(this.eventoId!, payload).subscribe({
         next: () => {
+          this.carregando = false;
+          this.cdr.detectChanges();
           alert('Evento atualizado com sucesso!');
           this.router.navigate(['/admin']);
         },
@@ -126,11 +118,14 @@ private formatarParaEnvio(data: string): string {
           console.error('Erro ao atualizar evento:', err);
           this.erroMsg = err?.error?.msg || 'Erro ao atualizar o evento.';
           this.carregando = false;
+          this.cdr.detectChanges();
         }
       });
     } else {
       this.eventoService.cadastrar(payload).subscribe({
         next: () => {
+          this.carregando = false;
+          this.cdr.detectChanges();
           alert('Evento criado com sucesso!');
           this.router.navigate(['/admin']);
         },
@@ -138,6 +133,7 @@ private formatarParaEnvio(data: string): string {
           console.error('Erro ao criar evento:', err);
           this.erroMsg = err?.error?.msg || 'Erro ao criar o evento.';
           this.carregando = false;
+          this.cdr.detectChanges();
         }
       });
     }

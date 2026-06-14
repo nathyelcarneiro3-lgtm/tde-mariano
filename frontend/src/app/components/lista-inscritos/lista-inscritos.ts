@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -20,13 +20,13 @@ export class ListaInscritosComponent implements OnInit {
   erroMsg = '';
   sucessoMsg = '';
 
-  // Para busca local
   termoBusca = '';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private eventoService: EventoService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -77,6 +77,7 @@ export class ListaInscritosComponent implements OnInit {
           ? dados
           : (dados?.inscritos ?? dados?.data ?? []);
         this.carregando = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.carregando = false;
@@ -85,6 +86,7 @@ export class ListaInscritosComponent implements OnInit {
         } else {
           this.erroMsg = err?.error?.msg || 'Erro ao carregar inscritos.';
         }
+        this.cdr.detectChanges();
       }
     });
   }
@@ -110,11 +112,13 @@ export class ListaInscritosComponent implements OnInit {
       next: (resp: any) => {
         this.removendo = null;
         this.sucessoMsg = resp?.msg || 'Inscrição removida com sucesso.';
+        this.cdr.detectChanges();
         this.carregarInscritos();
       },
       error: (err: any) => {
         this.removendo = null;
         this.erroMsg = err?.error?.msg || 'Erro ao remover inscrição.';
+        this.cdr.detectChanges();
       }
     });
   }
