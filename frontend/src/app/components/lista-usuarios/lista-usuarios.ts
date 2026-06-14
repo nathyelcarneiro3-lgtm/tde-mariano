@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { UsuarioService } from '../../services/usuario';
@@ -18,7 +18,8 @@ export class ListaUsuariosComponent implements OnInit {
 
   constructor(
     private usuarioService: UsuarioService,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -41,6 +42,7 @@ export class ListaUsuariosComponent implements OnInit {
       next: (dados: any[]) => {
         this.usuarios = Array.isArray(dados) ? dados : [];
         this.carregando = false;
+        this.cdr.detectChanges()
       },
       error: (err: any) => {
         this.carregando = false;
@@ -61,7 +63,7 @@ export class ListaUsuariosComponent implements OnInit {
           this.erroMsg = 'Erro ao carregar lista de usuários.';
           this.erroDetalhe = err.error?.msg || err.message || 'Erro desconhecido.';
         }
-
+        this.cdr.detectChanges()
         console.error('Erro ao listar usuários:', err);
       }
     });
