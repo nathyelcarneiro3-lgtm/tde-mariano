@@ -1,5 +1,5 @@
-import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { EventoService } from '../../services/evento';
 
@@ -8,7 +8,8 @@ import { EventoService } from '../../services/evento';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './admin-eventos.html',
-  styleUrls: ['./admin-eventos.css']
+  styleUrls: ['./admin-eventos.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminEventosComponent implements OnInit {
   eventos: any[] = [];
@@ -18,8 +19,7 @@ export class AdminEventosComponent implements OnInit {
   constructor(
     private eventoService: EventoService,
     private router: Router,
-    private cdr: ChangeDetectorRef,
-    @Inject(PLATFORM_ID) private platformId: Object
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -29,6 +29,7 @@ export class AdminEventosComponent implements OnInit {
   carregarEventos(): void {
     this.carregando = true;
     this.erroMsg = '';
+    this.cdr.markForCheck();
 
     this.eventoService.obterTodos().subscribe({
       next: (dados: any) => {
@@ -39,7 +40,7 @@ export class AdminEventosComponent implements OnInit {
           dt_fim_fmt:    this.formatarData(e.dt_fim)
         }));
         this.carregando = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (erro: any) => {
         this.carregando = false;
@@ -50,7 +51,7 @@ export class AdminEventosComponent implements OnInit {
         } else {
           this.erroMsg = erro?.error?.msg || 'Erro ao carregar eventos.';
         }
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
         console.error('Erro ao carregar eventos:', erro);
       }
     });
@@ -58,13 +59,7 @@ export class AdminEventosComponent implements OnInit {
 
   private formatarData(valor: string): string {
     if (!valor) return '—';
-    let str = valor.trim();
-    if (str.includes('/') && str.includes(':')) {
-      const parteDia = str.split(' ')[0];
-      const restante = str.split('/')[1] + '/' + str.split('/')[2];
-      return `${parteDia}/${restante}`;
-    }
-    const apenasData = str.split('T')[0].split(' ')[0];
+    const apenasData = valor.trim().split('T')[0].split(' ')[0];
     if (apenasData.includes('-')) {
       const [ano, mes, dia] = apenasData.split('-');
       return `${dia}/${mes}/${ano}`;
@@ -81,8 +76,7 @@ export class AdminEventosComponent implements OnInit {
         this.carregarEventos();
       },
       error: (erro: any) => {
-        const msg = erro?.error?.msg || 'Erro ao excluir o evento.';
-        alert(msg);
+        alert(erro?.error?.msg || 'Erro ao excluir o evento.');
         console.error('Erro ao excluir:', erro);
       }
     });

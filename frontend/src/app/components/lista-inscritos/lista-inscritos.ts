@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -9,7 +9,8 @@ import { EventoService } from '../../services/evento';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './lista-inscritos.html',
-  styleUrls: ['./lista-inscritos.css']
+  styleUrls: ['./lista-inscritos.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ListaInscritosComponent implements OnInit {
   idEvento: number = 0;
@@ -19,7 +20,6 @@ export class ListaInscritosComponent implements OnInit {
   removendo: number | null = null;
   erroMsg = '';
   sucessoMsg = '';
-
   termoBusca = '';
 
   constructor(
@@ -31,32 +31,20 @@ export class ListaInscritosComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    if (!this.estaLogado()) {
-      this.router.navigate(['/login']);
-      return;
-    }
-    if (!this.eAdmin()) {
-      this.router.navigate(['/home']);
-      return;
-    }
+    if (!this.estaLogado()) { this.router.navigate(['/login']); return; }
+    if (!this.eAdmin())     { this.router.navigate(['/home']);  return; }
 
     this.idEvento = Number(this.route.snapshot.paramMap.get('id'));
     const state = window.history.state;
     this.nomeEvento = state?.nomeEvento || '';
 
-    if (!this.idEvento) {
-      this.erroMsg = 'ID do evento inválido.';
-      return;
-    }
+    if (!this.idEvento) { this.erroMsg = 'ID do evento inválido.'; this.cdr.markForCheck(); return; }
 
     this.carregarInscritos();
   }
 
   estaLogado(): boolean {
-    if (isPlatformBrowser(this.platformId)) {
-      return !!localStorage.getItem('token');
-    }
-    return false;
+    return isPlatformBrowser(this.platformId) ? !!localStorage.getItem('token') : false;
   }
 
   eAdmin(): boolean {
@@ -70,23 +58,20 @@ export class ListaInscritosComponent implements OnInit {
   carregarInscritos(): void {
     this.carregando = true;
     this.erroMsg = '';
+    this.cdr.markForCheck();
 
     this.eventoService.obterInscritosPorEvento(this.idEvento).subscribe({
       next: (dados: any) => {
-        this.inscritos = Array.isArray(dados)
-          ? dados
-          : (dados?.inscritos ?? dados?.data ?? []);
+        this.inscritos = Array.isArray(dados) ? dados : (dados?.inscritos ?? dados?.data ?? []);
         this.carregando = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         this.carregando = false;
-        if (err.status === 401 || err.status === 403) {
-          this.erroMsg = 'Sessão expirada. Faça login novamente.';
-        } else {
-          this.erroMsg = err?.error?.msg || 'Erro ao carregar inscritos.';
-        }
-        this.cdr.detectChanges();
+        this.erroMsg = (err.status === 401 || err.status === 403)
+          ? 'Sessão expirada. Faça login novamente.'
+          : (err?.error?.msg || 'Erro ao carregar inscritos.');
+        this.cdr.markForCheck();
       }
     });
   }
@@ -95,8 +80,8 @@ export class ListaInscritosComponent implements OnInit {
     if (!this.termoBusca.trim()) return this.inscritos;
     const t = this.termoBusca.toLowerCase();
     return this.inscritos.filter(i =>
-      (i.nome || '').toLowerCase().includes(t) ||
-      (i.cpf || '').includes(t) ||
+      (i.nome  || '').toLowerCase().includes(t) ||
+      (i.cpf   || '').includes(t) ||
       (i.email || '').toLowerCase().includes(t)
     );
   }
@@ -107,23 +92,22 @@ export class ListaInscritosComponent implements OnInit {
     this.removendo = idParticipante;
     this.erroMsg = '';
     this.sucessoMsg = '';
+    this.cdr.markForCheck();
 
     this.eventoService.removerInscricao(this.idEvento, idParticipante).subscribe({
       next: (resp: any) => {
         this.removendo = null;
         this.sucessoMsg = resp?.msg || 'Inscrição removida com sucesso.';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
         this.carregarInscritos();
       },
       error: (err: any) => {
         this.removendo = null;
         this.erroMsg = err?.error?.msg || 'Erro ao remover inscrição.';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
 
-  voltar(): void {
-    this.router.navigate(['/admin']);
-  }
+  voltar(): void { this.router.navigate(['/admin']); }
 }

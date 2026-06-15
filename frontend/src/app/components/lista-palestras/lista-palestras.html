@@ -1,138 +1,58 @@
-<div class="lp-wrapper">
-
-  <!-- Cabeçalho da página -->
-  <div class="lp-header">
-    <div class="lp-header-text">
-      <h2 class="lp-titulo">
-        <span class="lp-icon">🎤</span> Palestras
-      </h2>
-      <p class="lp-subtitulo">Todas as palestras cadastradas no sistema.</p>
+<div class="container py-5">
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+    <div>
+      <h2 class="fw-bold mb-0">Palestras</h2>
+      <p class="text-muted small mb-0">Todas as palestras cadastradas no sistema.</p>
     </div>
-    <div class="lp-header-actions">
-      <button class="btn-lp-outline" (click)="carregar()" [disabled]="carregando">
-        <span *ngIf="carregando" class="spinner-border spinner-border-sm me-1" role="status"></span>
-        <span *ngIf="!carregando">↻</span> Atualizar
-      </button>
-      <button *ngIf="isAdmin" class="btn-lp-primary" routerLink="/cadastro-palestra">
-        + Nova Palestra
-      </button>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" (click)="carregar()" [disabled]="carregando">Atualizar</button>
+      <button *ngIf="isAdmin" class="btn btn-primary fw-bold px-4" routerLink="/cadastro-palestra">+ Nova Palestra</button>
     </div>
   </div>
+  <hr class="mb-4">
 
-  <div class="lp-divider"></div>
-
-  <!-- Barra de busca -->
-  <div class="lp-search-row" *ngIf="!carregando && !erroMsg">
-    <div class="lp-search-box">
-      <span class="lp-search-icon">🔍</span>
-      <input
-        type="text"
-        class="lp-search-input"
-        placeholder="Buscar por nome, palestrante, evento..."
-        [(ngModel)]="termoBusca"
-        (ngModelChange)="aplicarFiltro()"
-      />
-    </div>
-    <span class="lp-count" *ngIf="palestrasFiltered.length > 0">
-      {{ palestrasFiltered.length }} palestra(s)
-    </span>
+  <div *ngIf="carregando" class="text-center py-5">
+    <div class="spinner-border text-warning" role="status"></div>
+    <p class="mt-3 text-muted">Carregando palestras...</p>
   </div>
 
-  <!-- Spinner -->
-  <div *ngIf="carregando" class="lp-loading">
-    <div class="spinner-border lp-spinner" role="status"></div>
-    <p class="lp-loading-text">Carregando palestras...</p>
+  <div *ngIf="erroMsg && !carregando" class="alert alert-danger rounded-3">
+    <strong>{{ erroMsg }}</strong>
+    <div class="mt-2"><button class="btn btn-sm btn-outline-danger" (click)="carregar()">Tentar novamente</button></div>
   </div>
 
-  <!-- Mensagem de erro -->
-  <div *ngIf="erroMsg && !carregando" class="lp-alert-erro">
-    <span>⚠️ {{ erroMsg }}</span>
-    <button class="btn-lp-outline btn-sm" (click)="carregar()">Tentar novamente</button>
-  </div>
-
-  <!-- Tabela Desktop -->
-  <div class="lp-table-wrapper" *ngIf="!carregando && !erroMsg">
-    <table class="lp-table">
-      <thead>
+  <div class="table-responsive bg-white shadow-sm rounded border" *ngIf="!carregando && !erroMsg">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
         <tr>
-          <th>Nome da Palestra</th>
-          <th>Evento</th>
-          <th>Palestrante</th>
-          <th>Data</th>
-          <th>Horário</th>
-          <th *ngIf="isAdmin" class="th-acoes">Ações</th>
+          <th style="padding:1rem">Nome</th>
+          <th style="padding:1rem">Palestrante</th>
+          <th style="padding:1rem">Data</th>
+          <th style="padding:1rem">Início</th>
+          <th style="padding:1rem">Fim</th>
+          <th *ngIf="isAdmin" style="padding:1rem;text-align:center">Ações</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of palestrasFiltered" class="lp-row">
-          <td class="td-nome">
-            <span class="palestra-nome">{{ p.nome }}</span>
-            <span class="palestra-descricao" *ngIf="p.descricao">{{ p.descricao }}</span>
-          </td>
-          <td>
-            <span class="badge-evento">{{ p.nome_evento }}</span>
-          </td>
-          <td>
-            <div class="palestrante-info">
-              <span class="palestrante-nome">{{ p.nome_palestrante }}</span>
-              <span class="palestrante-mini" *ngIf="p.minicurriculo_palestrante">
-                {{ p.minicurriculo_palestrante | slice:0:60 }}{{ p.minicurriculo_palestrante?.length > 60 ? '…' : '' }}
-              </span>
-            </div>
-          </td>
-          <td>
-            <span class="data-badge">📅 {{ p.dt_fmt }}</span>
-          </td>
-          <td>
-            <span class="horario-badge">
-              {{ fmtHorario(p.horario_inicio_palestra) }} – {{ fmtHorario(p.horario_fim_palestra) }}
-            </span>
-          </td>
-          <td *ngIf="isAdmin" class="td-acoes">
-            <button class="btn-acao btn-editar" (click)="editar(p.id)" title="Editar palestra">
-              ✏️ Editar
-            </button>
-            <button class="btn-acao btn-remover" (click)="confirmarRemocao(p)" title="Remover palestra">
-              🗑️ Remover
-            </button>
+        <tr *ngFor="let p of palestras">
+          <td style="padding:1rem;font-weight:500">{{ p.nome }}</td>
+          <td style="padding:1rem">{{ p.nome_palestrante }}</td>
+          <td style="padding:1rem">{{ p.dt_fmt }}</td>
+          <td style="padding:1rem">{{ p.horario_inicio_palestra }}</td>
+          <td style="padding:1rem">{{ p.horario_fim_palestra }}</td>
+          <td *ngIf="isAdmin" style="padding:1rem;text-align:center">
+            <button class="btn btn-sm btn-outline-primary me-2" (click)="editar(p.id)">Editar</button>
+            <button class="btn btn-sm btn-outline-danger" (click)="remover(p.id, p.nome)">Remover</button>
           </td>
         </tr>
-
-        <!-- Estado vazio -->
-        <tr *ngIf="palestrasFiltered.length === 0">
-          <td [attr.colspan]="isAdmin ? 6 : 5" class="lp-empty">
-            <div class="lp-empty-icon">🎤</div>
-            <p *ngIf="!termoBusca">Nenhuma palestra cadastrada ainda.</p>
-            <p *ngIf="termoBusca">Nenhuma palestra encontrada para "<strong>{{ termoBusca }}</strong>".</p>
-            <button *ngIf="isAdmin && !termoBusca" class="btn-lp-primary mt-2" routerLink="/cadastro-palestra">
-              + Cadastrar Palestra
-            </button>
-          </td>
+        <tr *ngIf="palestras.length === 0">
+          <td [attr.colspan]="isAdmin ? 6 : 5" class="text-center py-5 text-muted">Nenhuma palestra cadastrada.</td>
         </tr>
       </tbody>
     </table>
   </div>
-
+  <p class="text-muted small mt-3" *ngIf="!carregando && palestras.length > 0">
+    Total: {{ palestras.length }} palestra(s).
+  </p>
 </div>
 
-<!-- ===== MODAL DE CONFIRMAÇÃO DE REMOÇÃO ===== -->
-<div class="lp-modal-overlay" *ngIf="palestraParaRemover" (click)="cancelarRemocao()">
-  <div class="lp-modal" (click)="$event.stopPropagation()">
-    <div class="lp-modal-icon">⚠️</div>
-    <h4 class="lp-modal-titulo">Remover Palestra?</h4>
-    <p class="lp-modal-msg">
-      Tem certeza que deseja remover a palestra<br>
-      <strong>"{{ palestraParaRemover?.nome }}"</strong>?<br>
-      <span class="lp-modal-aviso">Esta ação não pode ser desfeita.</span>
-    </p>
-    <div class="lp-modal-actions">
-      <button class="btn-lp-outline" (click)="cancelarRemocao()" [disabled]="removendo">
-        Cancelar
-      </button>
-      <button class="btn-lp-danger" (click)="remover()" [disabled]="removendo">
-        <span *ngIf="removendo" class="spinner-border spinner-border-sm me-1" role="status"></span>
-        Confirmar Remoção
-      </button>
-    </div>
-  </div>
-</div>

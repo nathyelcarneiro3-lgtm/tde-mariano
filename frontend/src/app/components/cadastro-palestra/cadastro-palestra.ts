@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -10,7 +10,7 @@ import { EventoService } from '../../services/evento';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './cadastro-palestra.html',
-  styleUrls: ['./cadastro-palestra.css']
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CadastroPalestraComponent implements OnInit {
   palestra: any = {
@@ -28,7 +28,6 @@ export class CadastroPalestraComponent implements OnInit {
   isEdit = false;
   palestraId: number | null = null;
   carregando = false;
-  salvando = false;
   erroMsg = '';
 
   constructor(
@@ -36,8 +35,8 @@ export class CadastroPalestraComponent implements OnInit {
     private eventoService: EventoService,
     private router: Router,
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef,
-    @Inject(PLATFORM_ID) private platformId: Object
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -46,14 +45,8 @@ export class CadastroPalestraComponent implements OnInit {
     if (localStorage.getItem('usuarioAdmin') !== '1') { this.router.navigate(['/home']); return; }
 
     this.eventoService.obterTodos().subscribe({
-      next: (dados: any) => {
-        this.eventos = Array.isArray(dados) ? dados : [];
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.eventos = [];
-        this.cdr.detectChanges();
-      }
+      next: (dados: any) => { this.eventos = Array.isArray(dados) ? dados : []; },
+      error: () => { this.eventos = []; }
     });
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -64,16 +57,18 @@ export class CadastroPalestraComponent implements OnInit {
     }
   }
 
+  // "2026-06-10 00:00:00" → "2026-06-10" (para o <input type="date">)
   private paraInput(v: string): string {
     if (!v) return '';
     const s = v.split('T')[0].split(' ')[0].trim();
     if (s.includes('/')) {
       const [d, m, a] = s.split('/');
-      return `${a}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+      return `${a}-${m}-${d}`;
     }
     return s;
   }
 
+  // "2026-06-10" → "10/06/2026" (que o backend exige)
   private paraEnvio(v: string): string {
     if (!v) return '';
     const s = v.split(' ')[0].trim();
@@ -99,20 +94,21 @@ export class CadastroPalestraComponent implements OnInit {
           minicurriculo_palestrante: res.minicurriculo_palestrante || ''
         };
         this.carregando = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao carregar palestra.';
         this.carregando = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
 
   salvar(): void {
     this.erroMsg = '';
-    this.salvando = true;
+    this.carregando = true;
 
+    // Converte YYYY-MM-DD → DD/MM/YYYY antes de enviar ao backend
     const payload = {
       ...this.palestra,
       dt_palestra: this.paraEnvio(this.palestra.dt_palestra)
@@ -124,20 +120,14 @@ export class CadastroPalestraComponent implements OnInit {
 
     acao.subscribe({
       next: () => {
-        this.salvando = false;
-        this.cdr.detectChanges();
         alert(this.isEdit ? 'Palestra atualizada com sucesso!' : 'Palestra cadastrada com sucesso!');
         this.router.navigate(['/lista-palestras']);
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao salvar palestra.';
-        this.salvando = false;
-        this.cdr.detectChanges();
+        this.carregando = false;
+        this.cdr.markForCheck();
       }
     });
-  }
-
-  cancelar(): void {
-    this.router.navigate(['/lista-palestras']);
   }
 }

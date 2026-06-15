@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { UsuarioService } from '../../services/usuario';
@@ -7,7 +7,8 @@ import { UsuarioService } from '../../services/usuario';
   selector: 'app-lista-usuarios',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './lista-usuarios.html'
+  templateUrl: './lista-usuarios.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ListaUsuariosComponent implements OnInit {
   usuarios: any[] = [];
@@ -37,12 +38,13 @@ export class ListaUsuariosComponent implements OnInit {
     this.erroMsg = '';
     this.erroDetalhe = '';
     this.usuarios = [];
+    this.cdr.markForCheck();
 
     this.usuarioService.listarTodos().subscribe({
       next: (dados: any[]) => {
         this.usuarios = Array.isArray(dados) ? dados : [];
         this.carregando = false;
-        this.cdr.detectChanges()
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         this.carregando = false;
@@ -63,32 +65,22 @@ export class ListaUsuariosComponent implements OnInit {
           this.erroMsg = 'Erro ao carregar lista de usuários.';
           this.erroDetalhe = err.error?.msg || err.message || 'Erro desconhecido.';
         }
-        this.cdr.detectChanges()
+
+        this.cdr.markForCheck();
         console.error('Erro ao listar usuários:', err);
       }
     });
   }
 
   editarUsuario(id: number): void {
-    if (!id) {
-      alert('ID do usuário não encontrado.');
-      return;
-    }
+    if (!id) { alert('ID do usuário não encontrado.'); return; }
     this.router.navigate(['/editar-perfil'], { queryParams: { id } });
   }
 
   removerUsuario(id: number, nome: string): void {
-    if (!id) {
-      alert('ID do usuário não encontrado.');
-      return;
-    }
-    if (id === this.idLogado) {
-      alert('Você não pode remover sua própria conta.');
-      return;
-    }
-    if (!confirm(`Tem certeza que deseja remover o usuário "${nome}"?\nEsta ação não pode ser desfeita.`)) {
-      return;
-    }
+    if (!id) { alert('ID do usuário não encontrado.'); return; }
+    if (id === this.idLogado) { alert('Você não pode remover sua própria conta.'); return; }
+    if (!confirm(`Tem certeza que deseja remover o usuário "${nome}"?\nEsta ação não pode ser desfeita.`)) return;
 
     this.usuarioService.remover(id).subscribe({
       next: () => {
@@ -104,13 +96,8 @@ export class ListaUsuariosComponent implements OnInit {
   }
 
   promoverUsuario(id: number, nome: string): void {
-    if (!id) {
-      alert('ID do usuário não encontrado.');
-      return;
-    }
-    if (!confirm(`Promover "${nome}" a Administrador?\nEsta ação não pode ser desfeita.`)) {
-      return;
-    }
+    if (!id) { alert('ID do usuário não encontrado.'); return; }
+    if (!confirm(`Promover "${nome}" a Administrador?\nEsta ação não pode ser desfeita.`)) return;
 
     this.usuarioService.promover(id).subscribe({
       next: () => {

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -10,7 +10,8 @@ import { UsuarioService } from '../../services/usuario';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './lista-inscritos-minicurso.html',
-  styleUrls: ['./lista-inscritos-minicurso.css']
+  styleUrls: ['./lista-inscritos-minicurso.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ListaInscritosMinicursoComponent implements OnInit {
   inscritos: any[] = [];
@@ -35,9 +36,9 @@ export class ListaInscritosMinicursoComponent implements OnInit {
   ngOnInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
     if (!localStorage.getItem('token')) { this.router.navigate(['/login']); return; }
-    this.isAdmin = this.usuarioService.isAdmin();
-    this.minicursoId = Number(this.route.snapshot.paramMap.get('id'));
-    const state = window.history.state;
+    this.isAdmin      = this.usuarioService.isAdmin();
+    this.minicursoId  = Number(this.route.snapshot.paramMap.get('id'));
+    const state       = window.history.state;
     this.nomeMinicurso = state?.nomeMinicurso || '';
     this.carregar();
   }
@@ -45,16 +46,17 @@ export class ListaInscritosMinicursoComponent implements OnInit {
   carregar(): void {
     this.carregando = true;
     this.erroMsg = '';
+    this.cdr.markForCheck();
     this.minicursoService.listarInscritos(this.minicursoId).subscribe({
       next: (dados: any) => {
         this.inscritos = Array.isArray(dados) ? dados : [];
         this.carregando = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         this.erroMsg = err?.error?.msg || 'Erro ao carregar inscritos.';
         this.carregando = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -63,8 +65,8 @@ export class ListaInscritosMinicursoComponent implements OnInit {
     if (!this.termoBusca.trim()) return this.inscritos;
     const t = this.termoBusca.toLowerCase();
     return this.inscritos.filter(i =>
-      (i.nome || '').toLowerCase().includes(t) ||
-      (i.cpf || '').includes(t) ||
+      (i.nome  || '').toLowerCase().includes(t) ||
+      (i.cpf   || '').includes(t) ||
       (i.email || '').toLowerCase().includes(t)
     );
   }
@@ -74,17 +76,18 @@ export class ListaInscritosMinicursoComponent implements OnInit {
     this.removendo = idParticipante;
     this.erroMsg = '';
     this.sucessoMsg = '';
+    this.cdr.markForCheck();
     this.minicursoService.removerInscricao(this.minicursoId, idParticipante).subscribe({
       next: (resp: any) => {
         this.removendo = null;
         this.sucessoMsg = resp?.msg || 'Inscrição removida com sucesso.';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
         this.carregar();
       },
       error: (err: any) => {
         this.removendo = null;
         this.erroMsg = err?.error?.msg || 'Erro ao remover inscrição.';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }

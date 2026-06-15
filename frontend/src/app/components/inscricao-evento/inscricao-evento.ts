@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EventoService } from '../../services/evento';
@@ -9,7 +9,8 @@ import { MinicursoService } from '../../services/minicurso';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './inscricao-evento.html',
-  styleUrls: ['./inscricao-evento.css']
+  styleUrls: ['./inscricao-evento.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InscricaoEventoComponent implements OnInit {
   evento: any = null;
@@ -38,7 +39,7 @@ export class InscricaoEventoComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    if (!id) { this.erroMsg = 'Evento não encontrado.'; return; }
+    if (!id) { this.erroMsg = 'Evento não encontrado.'; this.cdr.markForCheck(); return; }
     if (!this.estaLogado()) { this.router.navigate(['/login']); return; }
     this.carregarEvento(id);
   }
@@ -59,34 +60,36 @@ export class InscricaoEventoComponent implements OnInit {
 
   carregarEvento(id: number): void {
     this.carregando = true;
+    this.cdr.markForCheck();
     this.eventoService.obterPorId(id).subscribe({
       next: (dados: any) => {
         this.evento = dados;
         this.carregando = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
         this.verificarSeJaInscrito(id);
         this.carregarProgramacao(id);
       },
       error: (err: any) => {
         this.carregando = false;
         this.erroMsg = err?.error?.msg || 'Erro ao carregar dados do evento.';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
 
   carregarProgramacao(idEvento: number): void {
     this.carregandoProgramacao = true;
+    this.cdr.markForCheck();
     this.eventoService.obterProgramacao(idEvento).subscribe({
       next: (dados: any) => {
         this.palestras  = Array.isArray(dados?.palestras)  ? dados.palestras  : [];
         this.minicursos = Array.isArray(dados?.minicursos) ? dados.minicursos : [];
         this.carregandoProgramacao = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: () => {
         this.carregandoProgramacao = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -97,33 +100,31 @@ export class InscricaoEventoComponent implements OnInit {
       next: (lista: any) => {
         const inscritos = Array.isArray(lista) ? lista : (lista?.inscritos ?? lista?.data ?? []);
         this.jaInscrito = inscritos.some((i: any) => Number(i.id_usuario ?? i.id) === idUsuario);
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
-      error: () => {
-        this.jaInscrito = false;
-        this.cdr.detectChanges();
-      }
+      error: () => { this.jaInscrito = false; this.cdr.markForCheck(); }
     });
   }
 
   inscrever(): void {
     if (!this.evento) return;
     const idUsuario = this.getIdUsuario();
-    if (!idUsuario) { this.erroMsg = 'Não foi possível identificar o usuário. Faça login novamente.'; return; }
+    if (!idUsuario) { this.erroMsg = 'Não foi possível identificar o usuário. Faça login novamente.'; this.cdr.markForCheck(); return; }
     this.inscrevendo = true;
     this.erroMsg = '';
     this.sucessoMsg = '';
+    this.cdr.markForCheck();
     this.eventoService.inscrever(this.evento.id, idUsuario).subscribe({
       next: (resp: any) => {
         this.inscrevendo = false;
         this.sucessoMsg = resp?.msg || 'Inscrição realizada com sucesso! 🎉';
         this.jaInscrito = true;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         this.inscrevendo = false;
         this.erroMsg = err?.error?.msg || 'Erro ao realizar inscrição. Tente novamente.';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -131,6 +132,7 @@ export class InscricaoEventoComponent implements OnInit {
   inscreverMinicurso(m: any): void {
     if (!this.jaInscrito) {
       this.erroMinicurso = 'Você precisa estar inscrito no evento antes de se inscrever em um minicurso.';
+      this.cdr.markForCheck();
       return;
     }
     const idUsuario = this.getIdUsuario();
@@ -138,16 +140,17 @@ export class InscricaoEventoComponent implements OnInit {
     this.inscrevendoMinicurso = m.id;
     this.erroMinicurso = '';
     this.sucessoMinicurso = '';
+    this.cdr.markForCheck();
     this.minicursoService.inscrever(m.id, idUsuario).subscribe({
       next: (resp: any) => {
         this.inscrevendoMinicurso = null;
         this.sucessoMinicurso = `✅ Inscrito em "${m.nome}" com sucesso!`;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         this.inscrevendoMinicurso = null;
         this.erroMinicurso = err?.error?.msg || 'Erro ao se inscrever no minicurso.';
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }

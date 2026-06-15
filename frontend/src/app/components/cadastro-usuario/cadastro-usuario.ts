@@ -1,47 +1,62 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { UsuarioService } from '../../services/usuario'; // O serviço que acabámos de criar
+import { UsuarioService } from '../../services/usuario';
+import { gerarHash } from '../../utils/hash';
 
 @Component({
   selector: 'app-cadastro-usuario',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterModule],
-  templateUrl: './cadastro-usuario.html'
+  templateUrl: './cadastro-usuario.html',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CadastroUsuarioComponent {
-   novoUsuario = {
+
+  novoUsuario = {
     nome: '',
     cpf: '',
     email: '',
-    senha: '',        // A senha que o usuário digita
-    hash_senha: '',   // Iremos copiar a senha para cá
-    usuario_admin: 0  // Valor fixo que o banco exige
+    senha: ''
   };
 
-  
-// ... o resto do código continua igual
+  carregando = false;
+  erroMsg = '';
 
-  constructor(private usuarioService: UsuarioService, private router: Router) {}
+  constructor(
+    private usuarioService: UsuarioService,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-cadastrar() {
-    // Mande apenas o necessário
+  async cadastrar() {
+    this.erroMsg = '';
+    this.carregando = true;
+    this.cdr.markForCheck();
+
+    // Gera hash SHA-256 da senha — o backend não deve receber a senha em texto plano
+    const hashSenha = await gerarHash(this.novoUsuario.senha);
+
     const payload = {
-      nome: this.novoUsuario.nome,
-      cpf: this.novoUsuario.cpf,
+      nome:  this.novoUsuario.nome,
+      cpf:   this.novoUsuario.cpf,
       email: this.novoUsuario.email,
-      senha: this.novoUsuario.senha
+      senha: hashSenha
     };
 
     this.usuarioService.cadastrar(payload).subscribe({
-      next: (res) => {
+      next: () => {
+        this.carregando = false;
+        this.cdr.markForCheck();
         alert('Conta criada com sucesso!');
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        console.log(err); // Veja no console do navegador o que o Python está a devolver
-        alert('Erro ao cadastrar. Verifique o console.');
+        this.carregando = false;
+        this.erroMsg = err?.error?.msg || 'Erro ao cadastrar. Verifique os dados e tente novamente.';
+        this.cdr.markForCheck();
+        console.error('Erro ao cadastrar usuário:', err);
       }
     });
   }
